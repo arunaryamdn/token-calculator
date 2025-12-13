@@ -1,0 +1,7 @@
+# Core dependencies
+tiktoken>=0.5.0
+
+# Optional dependencies for advanced features
+# Uncomment if needed:
+# transformers>=4.30.0  # For Llama, Mistral, and other model tokenizers
+# anthropic>=0.3.0      # For Claude tokenization
