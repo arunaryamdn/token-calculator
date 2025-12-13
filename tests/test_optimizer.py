@@ -3,7 +3,7 @@ Tests for optimizer module.
 """
 
 import pytest
-from know_your_tokens.optimizer import (
+from tokencost.optimizer import (
     TokenOptimizer,
     optimize_prompt,
     suggest_optimizations,

@@ -1,8 +1,8 @@
 """
-Conversation management examples for know-your-tokens package.
+Conversation management examples for tokencost package.
 """
 
-from know_your_tokens import ConversationManager
+from tokencost import ConversationManager
 
 
 def example_1_basic_conversation():

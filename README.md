@@ -1,10 +1,10 @@
-# 🎯 Know Your Tokens
+# 🎯 TokenCost
 
 **LLM Token Optimization and Cost Management for Developers**
 
-Stop guessing about token usage and costs! Know Your Tokens is a comprehensive Python package that helps developers understand, analyze, and optimize LLM token consumption across different models and providers.
+Stop guessing about token usage and costs! TokenCost is a comprehensive Python package that helps developers understand, analyze, and optimize LLM token consumption across different models and providers.
 
-## 🚀 Why Know Your Tokens?
+## 🚀 Why TokenCost?
 
 In today's AI-driven world, developers face critical challenges:
 
@@ -14,7 +14,7 @@ In today's AI-driven world, developers face critical challenges:
 - ❌ **Trial & Error**: No clear way to predict how many conversation turns are possible
 - ❌ **Optimization Guesswork**: No systematic way to reduce token usage
 
-**Know Your Tokens solves all of these problems!**
+**TokenCost solves all of these problems!**
 
 ## ✨ Features
 
@@ -51,7 +51,7 @@ In today's AI-driven world, developers face critical challenges:
 ## 📦 Installation
 
 ```bash
-pip install know-your-tokens
+pip install tokencost
 ```
 
 For development:
@@ -64,7 +64,7 @@ pip install -e ".[dev]"
 ### Basic Token Counting
 
 ```python
-from know_your_tokens import count_tokens, analyze_prompt
+from tokencost import count_tokens, analyze_prompt
 
 # Count tokens in a simple text
 tokens = count_tokens("Hello, how are you?", model_name="gpt-4")
@@ -86,7 +86,7 @@ print(f"Optimization suggestions: {analysis['optimization']['suggestions_count']
 ### Context Window Analysis
 
 ```python
-from know_your_tokens import ContextAnalyzer
+from tokencost import ContextAnalyzer
 
 analyzer = ContextAnalyzer("gpt-4")
 
@@ -115,7 +115,7 @@ for rec in analysis.recommendations:
 ### Cost Calculation
 
 ```python
-from know_your_tokens import CostCalculator, compare_model_costs
+from tokencost import CostCalculator, compare_model_costs
 
 # Calculate cost for a specific model
 calculator = CostCalculator("gpt-4")
@@ -149,7 +149,7 @@ for comp in comparisons:
 ### Conversation Management
 
 ```python
-from know_your_tokens import ConversationManager
+from tokencost import ConversationManager
 
 # Initialize conversation
 manager = ConversationManager(
@@ -191,7 +191,7 @@ if stats.context_usage_percentage > 70:
 ### Token Optimization
 
 ```python
-from know_your_tokens import TokenOptimizer, optimize_prompt
+from tokencost import TokenOptimizer, optimize_prompt
 
 # Optimize a prompt
 optimizer = TokenOptimizer("gpt-4")
@@ -221,7 +221,7 @@ print(f"\nOptimized text:\n{result.optimized_text}")
 ### Model Search & Comparison
 
 ```python
-from know_your_tokens import search_models, list_models, ModelProvider
+from tokencost import search_models, list_models, ModelProvider
 
 # List all models from a provider
 openai_models = list_models(provider=ModelProvider.OPENAI)
@@ -244,7 +244,7 @@ for model in affordable_models:
 ### Estimating Maximum Conversation Turns
 
 ```python
-from know_your_tokens import ContextAnalyzer
+from tokencost import ContextAnalyzer
 
 analyzer = ContextAnalyzer("gpt-4")
 
@@ -265,7 +265,7 @@ print(f"Critical at turn: {estimate['critical_at_turn']}")
 ### Cost Savings Analysis
 
 ```python
-from know_your_tokens import CostCalculator
+from tokencost import CostCalculator
 
 calculator = CostCalculator("gpt-4")
 
@@ -285,7 +285,7 @@ print(f"Yearly savings: ${savings['yearly_savings']:.2f}")
 ### Comparing Different Phrasings
 
 ```python
-from know_your_tokens import TokenOptimizer
+from tokencost import TokenOptimizer
 
 optimizer = TokenOptimizer("gpt-4")
 

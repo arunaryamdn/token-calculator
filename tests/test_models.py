@@ -3,7 +3,7 @@ Tests for models module.
 """
 
 import pytest
-from know_your_tokens.models import (
+from tokencost.models import (
     get_model_config,
     list_models,
     search_models,
