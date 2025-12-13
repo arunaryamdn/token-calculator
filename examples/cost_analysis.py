@@ -1,8 +1,8 @@
 """
-Cost analysis examples for know-your-tokens package.
+Cost analysis examples for tokencost package.
 """
 
-from know_your_tokens import (
+from tokencost import (
     CostCalculator,
     compare_model_costs,
     search_models,

@@ -1,8 +1,8 @@
 """
-Basic usage examples for know-your-tokens package.
+Basic usage examples for tokencost package.
 """
 
-from know_your_tokens import (
+from tokencost import (
     count_tokens,
     analyze_prompt,
     TokenCounter,

@@ -3,7 +3,7 @@ Tests for tokenizer module.
 """
 
 import pytest
-from know_your_tokens.tokenizer import TokenCounter, count_tokens, count_messages
+from tokencost.tokenizer import TokenCounter, count_tokens, count_messages
 
 
 def test_token_counter_init():

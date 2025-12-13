@@ -2,6 +2,6 @@ include README.md
 include LICENSE
 include requirements.txt
 include requirements-dev.txt
-recursive-include know_your_tokens *.py
+recursive-include tokencost *.py
 recursive-include examples *.py
 recursive-include tests *.py

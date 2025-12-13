@@ -1,8 +1,8 @@
 """
-Token optimization examples for know-your-tokens package.
+Token optimization examples for tokencost package.
 """
 
-from know_your_tokens import TokenOptimizer, optimize_prompt, suggest_optimizations
+from tokencost import TokenOptimizer, optimize_prompt, suggest_optimizations
 
 
 def example_1_basic_optimization():

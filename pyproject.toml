@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "know-your-tokens"
+name = "tokencost"
 version = "0.1.0"
 description = "LLM Token Optimization and Cost Management for Developers"
 readme = "README.md"
@@ -11,7 +11,7 @@ requires-python = ">=3.8"
 license = {text = "MIT"}
 keywords = ["llm", "tokens", "optimization", "cost", "ai", "gpt", "claude"]
 authors = [
-    {name = "Know Your Tokens Contributors"}
+    {name = "TokenCost Contributors"}
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -57,4 +57,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=know_your_tokens --cov-report=term-missing"
+addopts = "-v --cov=tokencost --cov-report=term-missing"
