@@ -1,8 +1,8 @@
 """
-Cost analysis examples for tokencost package.
+Cost analysis examples for token-calculator package.
 """
 
-from tokencost import (
+from token_calculator import (
     CostCalculator,
     compare_model_costs,
     search_models,

@@ -1,5 +1,5 @@
 """
-Setup configuration for tokencost package.
+Setup configuration for token-calculator package.
 """
 
 from setuptools import setup, find_packages
@@ -10,7 +10,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name="tokencost",
+    name="token-calculator",
     version="0.1.0",
     author="TokenCost Contributors",
     author_email="",

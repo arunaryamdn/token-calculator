@@ -1,8 +1,8 @@
 """
-Conversation management examples for tokencost package.
+Conversation management examples for token-calculator package.
 """
 
-from tokencost import ConversationManager
+from token_calculator import ConversationManager
 
 
 def example_1_basic_conversation():
