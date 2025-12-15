@@ -1,5 +1,8 @@
 # 🎯 TokenCost
 
+[![PyPI version](https://badge.fury.io/py/token-calculator.svg)](https://badge.fury.io/py/token-calculator)
+[![Downloads](https://pepy.tech/badge/token-calculator)](https://pepy.tech/project/token-calculator)
+
 **LLM Token Optimization and Cost Management for Developers**
 
 Stop guessing about token usage and costs! TokenCost is a comprehensive Python package that helps developers understand, analyze, and optimize LLM token consumption across different models and providers.
