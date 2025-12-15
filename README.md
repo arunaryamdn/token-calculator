@@ -51,7 +51,7 @@ In today's AI-driven world, developers face critical challenges:
 ## 📦 Installation
 
 ```bash
-pip install tokencost
+pip install token-calculator
 ```
 
 For development:
@@ -64,7 +64,7 @@ pip install -e ".[dev]"
 ### Basic Token Counting
 
 ```python
-from tokencost import count_tokens, analyze_prompt
+from token_calculator import count_tokens, analyze_prompt
 
 # Count tokens in a simple text
 tokens = count_tokens("Hello, how are you?", model_name="gpt-4")
@@ -86,7 +86,7 @@ print(f"Optimization suggestions: {analysis['optimization']['suggestions_count']
 ### Context Window Analysis
 
 ```python
-from tokencost import ContextAnalyzer
+from token_calculator import ContextAnalyzer
 
 analyzer = ContextAnalyzer("gpt-4")
 
@@ -115,7 +115,7 @@ for rec in analysis.recommendations:
 ### Cost Calculation
 
 ```python
-from tokencost import CostCalculator, compare_model_costs
+from token_calculator import CostCalculator, compare_model_costs
 
 # Calculate cost for a specific model
 calculator = CostCalculator("gpt-4")
@@ -149,7 +149,7 @@ for comp in comparisons:
 ### Conversation Management
 
 ```python
-from tokencost import ConversationManager
+from token_calculator import ConversationManager
 
 # Initialize conversation
 manager = ConversationManager(
@@ -191,7 +191,7 @@ if stats.context_usage_percentage > 70:
 ### Token Optimization
 
 ```python
-from tokencost import TokenOptimizer, optimize_prompt
+from token_calculator import TokenOptimizer, optimize_prompt
 
 # Optimize a prompt
 optimizer = TokenOptimizer("gpt-4")
@@ -221,7 +221,7 @@ print(f"\nOptimized text:\n{result.optimized_text}")
 ### Model Search & Comparison
 
 ```python
-from tokencost import search_models, list_models, ModelProvider
+from token_calculator import search_models, list_models, ModelProvider
 
 # List all models from a provider
 openai_models = list_models(provider=ModelProvider.OPENAI)
@@ -244,7 +244,7 @@ for model in affordable_models:
 ### Estimating Maximum Conversation Turns
 
 ```python
-from tokencost import ContextAnalyzer
+from token_calculator import ContextAnalyzer
 
 analyzer = ContextAnalyzer("gpt-4")
 
@@ -265,7 +265,7 @@ print(f"Critical at turn: {estimate['critical_at_turn']}")
 ### Cost Savings Analysis
 
 ```python
-from tokencost import CostCalculator
+from token_calculator import CostCalculator
 
 calculator = CostCalculator("gpt-4")
 
@@ -285,7 +285,7 @@ print(f"Yearly savings: ${savings['yearly_savings']:.2f}")
 ### Comparing Different Phrasings
 
 ```python
-from tokencost import TokenOptimizer
+from token_calculator import TokenOptimizer
 
 optimizer = TokenOptimizer("gpt-4")
 

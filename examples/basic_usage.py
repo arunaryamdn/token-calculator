@@ -1,8 +1,8 @@
 """
-Basic usage examples for tokencost package.
+Basic usage examples for token-calculator package.
 """
 
-from tokencost import (
+from token_calculator import (
     count_tokens,
     analyze_prompt,
     TokenCounter,

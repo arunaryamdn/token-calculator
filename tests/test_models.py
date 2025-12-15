@@ -3,7 +3,7 @@ Tests for models module.
 """
 
 import pytest
-from tokencost.models import (
+from token_calculator.models import (
     get_model_config,
     list_models,
     search_models,

@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tokencost"
+name = "token-calculator"
 version = "0.1.0"
 description = "LLM Token Optimization and Cost Management for Developers"
 readme = "README.md"
@@ -57,4 +57,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "-v --cov=tokencost --cov-report=term-missing"
+addopts = "-v --cov=token_calculator --cov-report=term-missing"
