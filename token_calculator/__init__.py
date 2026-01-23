@@ -57,6 +57,64 @@ from .optimizer import (
     suggest_optimizations,
 )
 
+# Storage backends
+from .storage import (
+    StorageBackend,
+    InMemoryStorage,
+    SQLiteStorage,
+    TrackingEvent,
+    create_storage,
+)
+
+# Cost tracking with labels
+from .cost_tracker import (
+    CostTracker,
+    CostRecord,
+    CostReport,
+    Anomaly,
+    Recommendation,
+)
+
+# Multi-agent workflow tracking
+from .workflow_tracker import (
+    WorkflowTracker,
+    AgentExecution,
+    WorkflowAnalysis,
+    OptimizationSuggestion as WorkflowOptimization,
+)
+
+# Context health monitoring
+from .health_monitor import (
+    ConversationMonitor,
+    HealthStatus,
+    CompressionResult,
+)
+
+# Cost forecasting and budgeting
+from .forecasting import (
+    CostForecaster,
+    BudgetTracker,
+    Forecast,
+    Scenario,
+    ScenarioResult,
+    BudgetStatus,
+)
+
+# Alerting
+from .alerts import (
+    AlertManager,
+    Alert,
+    AlertRule,
+)
+
+# Model selection
+from .model_selector import (
+    ModelSelector,
+    ModelRecommendation,
+    ABTestConfig,
+    ABTestResults,
+)
+
 # Convenience exports
 __all__ = [
     # Version
@@ -92,6 +150,45 @@ __all__ = [
     "OptimizationResult",
     "optimize_prompt",
     "suggest_optimizations",
+    # Storage
+    "StorageBackend",
+    "InMemoryStorage",
+    "SQLiteStorage",
+    "TrackingEvent",
+    "create_storage",
+    # Cost Tracking
+    "CostTracker",
+    "CostRecord",
+    "CostReport",
+    "Anomaly",
+    "Recommendation",
+    # Workflow Tracking
+    "WorkflowTracker",
+    "AgentExecution",
+    "WorkflowAnalysis",
+    "WorkflowOptimization",
+    # Health Monitoring
+    "ConversationMonitor",
+    "HealthStatus",
+    "CompressionResult",
+    # Forecasting
+    "CostForecaster",
+    "BudgetTracker",
+    "Forecast",
+    "Scenario",
+    "ScenarioResult",
+    "BudgetStatus",
+    # Alerts
+    "AlertManager",
+    "Alert",
+    "AlertRule",
+    # Model Selection
+    "ModelSelector",
+    "ModelRecommendation",
+    "ABTestConfig",
+    "ABTestResults",
+    # Utilities
+    "analyze_prompt",
 ]
 
 
