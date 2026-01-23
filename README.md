@@ -3,53 +3,248 @@
 [![PyPI version](https://badge.fury.io/py/token-calculator.svg)](https://badge.fury.io/py/token-calculator)
 [![Downloads](https://pepy.tech/badge/token-calculator)](https://pepy.tech/project/token-calculator)
 
-**LLM Token Optimization and Cost Management for Developers**
+**Production-Ready LLM Cost Management and Observability for AI Product Managers**
 
-Stop guessing about token usage and costs! TokenCost is a comprehensive Python package that helps developers understand, analyze, and optimize LLM token consumption across different models and providers.
+Token Calculator is the comprehensive toolkit for building, monitoring, and optimizing production AI agents. Track costs across multi-agent workflows, detect context rot before it causes hallucinations, and make data-driven decisions about model selection—all with enterprise-grade observability.
 
-## 🚀 Why Token Calculator?
+## 🎯 Built for AI Product Managers
 
-In today's AI-driven world, developers face critical challenges:
+If you're building AI agents in production, you know the challenges:
 
-- ❌ **Hidden Costs**: Many users don't realize the real cost of tokens until they receive huge bills
-- ❌ **Context Confusion**: Unclear about context windows, max tokens, input vs output limits
-- ❌ **Context Breaks**: Breaching context limits leads to reduced accuracy, context rot, and scope issues
-- ❌ **Trial & Error**: No clear way to predict how many conversation turns are possible
-- ❌ **Optimization Guesswork**: No systematic way to reduce token usage
+- 💸 **Cost Blindness**: You don't see costs until the monthly bill arrives
+- 🤖 **Multi-Agent Complexity**: Hard to track which agent in your workflow costs what
+- 🔥 **Context Rot**: Conversations degrade over time, causing hallucinations
+- 📊 **No Visibility**: Can't debug token usage through complex agent workflows
+- 🎲 **Model Selection**: Guessing which model offers the best cost/quality trade-off
+- ⚠️ **Production Incidents**: Context overflows break your app at 2 AM
 
-**TokenCost solves all of these problems!**
+**Token Calculator solves all of these problems.**
 
-## ✨ Features
+## ✨ Key Features for Production AI
 
-### 🔢 Token Counting & Analysis
-- Count tokens for any prompt or conversation
-- Support for **major LLM providers**: OpenAI, Anthropic, Google, Meta, Mistral, Cohere
-- Accurate tokenization using model-specific tokenizers
-- Break down token usage by message role (system, user, assistant)
+### 📊 **Cost Tracking with Multi-Dimensional Analysis**
 
-### 📊 Context Window Management
-- Real-time context usage monitoring
-- Identify when context will break **before** it happens
-- Calculate maximum conversation turns with historical context, RAG, and tool calls
-- Smart context splitting and summarization strategies
+Track every LLM call with custom labels, query costs by any dimension, and identify cost anomalies before they become incidents.
 
-### 💰 Cost Calculation
-- Real-time cost tracking for all major LLM models
-- Compare costs across different models
-- Monthly/yearly cost projections
-- Cost-saving estimations from optimizations
+```python
+from token_calculator import CostTracker, create_storage
 
-### 💬 Conversation Management
-- Track multi-turn conversations
-- Automatic context monitoring
-- Conversation summarization when approaching limits
-- Export conversation data for analysis
+# Track with custom dimensions
+tracker = CostTracker(
+    storage=create_storage("sqlite", db_path="costs.db"),
+    default_labels={"environment": "production", "team": "ai"}
+)
 
-### ⚡ Token Optimization
-- Automatic detection of verbose patterns
-- Prompt optimization suggestions
-- Token reduction strategies
-- Compare different phrasings for efficiency
+tracker.track_call(
+    model="gpt-4",
+    input_tokens=1000,
+    output_tokens=500,
+    agent_id="customer-support",
+    user_id="user-123",
+    session_id="session-456"
+)
+
+# Query costs by any dimension
+report = tracker.get_costs(
+    start_date="this-month",
+    group_by=["agent_id", "model"],
+    filters={"environment": "production"}
+)
+print(report)
+# Output:
+# Cost Report (1,234 calls)
+#   Total Cost: $456.78
+#   Breakdown:
+#     customer-support | gpt-4: $234.56
+#     rag-agent | gpt-4o: $123.45
+```
+
+### 🤖 **Multi-Agent Workflow Tracking**
+
+Track token usage across complex agent orchestrations, identify bottlenecks, and optimize inter-agent communication.
+
+```python
+from token_calculator import WorkflowTracker
+
+tracker = WorkflowTracker(workflow_id="customer-support-v2")
+
+# Track each agent in your workflow
+with tracker.track_agent("router", model="gpt-4o-mini") as ctx:
+    result = router.run(query)
+    ctx.track_call(input_tokens=150, output_tokens=20)
+
+with tracker.track_agent("executor", model="gpt-4") as ctx:
+    final = executor.run(result)
+    ctx.track_call(input_tokens=800, output_tokens=300)
+
+# Analyze workflow
+analysis = tracker.analyze()
+print(analysis)
+# Output:
+# Workflow Analysis: customer-support-v2
+#   Total Cost: $0.0520
+#   Bottleneck: executor ($0.0450)
+#   Efficiency: 75/100
+#   Recommendations:
+#     • executor accounts for >50% of cost
+```
+
+### 🏥 **Context Health Monitoring**
+
+Detect context rot, prevent hallucinations, and intelligently compress conversations before quality degrades.
+
+```python
+from token_calculator import ConversationMonitor
+
+monitor = ConversationMonitor(model="gpt-4", agent_id="support-agent")
+
+for user_msg, assistant_msg in conversation:
+    monitor.add_turn(user_msg, assistant_msg)
+
+    health = monitor.check_health()
+
+    if health.status == "context_rot":
+        # Compress before quality degrades
+        compressed = monitor.compress_context(
+            strategy="semantic",
+            target_tokens=4000,
+            keep_recent=3
+        )
+        # Reset conversation with compressed context
+
+print(health)
+# Output:
+# ⚠️ Context Health: CONTEXT_ROT
+#   Quality Score: 65/100
+#   Context Usage: 78.5%
+#   Rot: 45.0%
+#   Warnings:
+#     ⚠️  45% of context appears irrelevant
+#   Recommendations:
+#     💡 Use compress_context() to remove irrelevant context
+```
+
+### 📈 **Cost Forecasting & Budgeting**
+
+Forecast future costs, set budgets, and get alerted before you overspend.
+
+```python
+from token_calculator import CostForecaster, BudgetTracker
+
+forecaster = CostForecaster(storage=tracker.storage)
+
+# Forecast next month
+forecast = forecaster.forecast_monthly(agent_id="rag-agent")
+print(forecast)
+# Output:
+# 📈 Monthly Forecast:
+#   Predicted: $1,234.56
+#   Range: $987.65 - $1,481.47
+#   Trend: increasing
+
+# Set budget and track
+budget = BudgetTracker(storage=tracker.storage)
+budget.set_budget(amount=10000, period="monthly")
+
+status = budget.get_status()
+if not status.on_track:
+    print(f"⚠️ Projected overage: ${status.projected_overage:.2f}")
+```
+
+### 🚨 **Real-Time Alerting**
+
+Get notified immediately when costs spike, contexts overflow, or budgets are exceeded.
+
+```python
+from token_calculator import AlertManager, AlertRule
+
+alerts = AlertManager(webhook_url="https://hooks.slack.com/...")
+
+# Cost spike alert
+alerts.add_rule(AlertRule(
+    name="cost-spike",
+    condition=lambda e: e.cost > 1.0,
+    severity="warning",
+    message_template="High cost call: ${cost:.2f} for {agent_id}",
+    channels=["console", "webhook"]
+))
+
+# Budget alert
+alerts.add_budget_alert(
+    budget_amount=10000,
+    threshold_pct=0.8,  # Alert at 80%
+    severity="warning"
+)
+
+# Alerts trigger automatically
+triggered = alerts.check_event(event)
+```
+
+### 🎯 **Model Recommendation Engine**
+
+Stop guessing which model to use. Get data-driven recommendations based on your usage patterns.
+
+```python
+from token_calculator import ModelSelector
+
+selector = ModelSelector(storage=tracker.storage)
+
+# Get recommendation
+rec = selector.recommend(
+    current_model="gpt-4",
+    requirements={"max_cost_per_1k": 0.01},
+    usage_context="simple_qa"
+)
+
+print(rec)
+# Output:
+# 💡 Model Recommendation: gpt-4o-mini
+#    Current: gpt-4
+#    Monthly Savings: $450.00
+#    Quality Impact: -10%
+#    Confidence: 85%
+#    Reasoning: gpt-4o-mini costs <50% of gpt-4. Fast, cost-effective for simple Q&A
+
+# A/B test the recommendation
+test = selector.create_ab_test(
+    name="gpt4-vs-gpt4o",
+    model_a="gpt-4",
+    model_b="gpt-4o",
+    traffic_split=0.1,
+    duration_days=7
+)
+
+# After 7 days...
+results = selector.get_test_results(test)
+print(results.recommendation)
+```
+
+### 🔌 **One-Line LangChain Integration**
+
+Already using LangChain? Add tracking with one line of code.
+
+```python
+from langchain_openai import ChatOpenAI
+from token_calculator import CostTracker, create_storage
+from token_calculator.integrations.langchain import TokenCalculatorCallback
+
+tracker = CostTracker(storage=create_storage("sqlite", db_path="costs.db"))
+
+callback = TokenCalculatorCallback(
+    tracker=tracker,
+    agent_id="my-agent",
+    environment="production"
+)
+
+# Just add callbacks parameter!
+llm = ChatOpenAI(callbacks=[callback])
+
+# All LLM calls are now tracked automatically
+result = llm.invoke("Hello!")
+
+# Check costs
+report = tracker.get_costs(start_date="today")
+```
 
 ## 📦 Installation
 
@@ -57,326 +252,249 @@ In today's AI-driven world, developers face critical challenges:
 pip install token-calculator
 ```
 
-For development:
+Optional dependencies:
+
 ```bash
-pip install -e ".[dev]"
+# For LangChain integration
+pip install token-calculator[langchain]
+
+# For PostgreSQL storage
+pip install token-calculator[postgres]
+
+# All optional dependencies
+pip install token-calculator[all]
 ```
 
-## 🎯 Quick Start
+## 🚀 Quick Start
 
-### Basic Token Counting
+### 1. Basic Cost Tracking
 
 ```python
-from token_calculator import count_tokens, analyze_prompt
+from token_calculator import CostTracker, create_storage
 
-# Count tokens in a simple text
-tokens = count_tokens("Hello, how are you?", model_name="gpt-4")
-print(f"Tokens: {tokens}")
-
-# Comprehensive analysis of a prompt
-analysis = analyze_prompt(
-    prompt="Write a detailed explanation of quantum computing",
-    model_name="gpt-4",
-    expected_output_tokens=500
+tracker = CostTracker(
+    storage=create_storage("sqlite", db_path="costs.db")
 )
 
-print(f"Input tokens: {analysis['tokens']['input']}")
-print(f"Total cost: {analysis['cost']['formatted']}")
-print(f"Context usage: {analysis['context']['usage_percentage']:.1f}%")
-print(f"Optimization suggestions: {analysis['optimization']['suggestions_count']}")
-```
-
-### Context Window Analysis
-
-```python
-from token_calculator import ContextAnalyzer
-
-analyzer = ContextAnalyzer("gpt-4")
-
-messages = [
-    {"role": "system", "content": "You are a helpful assistant."},
-    {"role": "user", "content": "What is machine learning?"},
-    {"role": "assistant", "content": "Machine learning is..."},
-]
-
-analysis = analyzer.analyze_messages(messages)
-
-print(f"Total tokens: {analysis.total_tokens}")
-print(f"Usage: {analysis.usage_percentage:.1f}%")
-print(f"Status: {analysis.status.value}")
-print(f"Available for output: {analysis.available_for_output}")
-
-# Get warnings
-for warning in analysis.warnings:
-    print(warning)
-
-# Get recommendations
-for rec in analysis.recommendations:
-    print(rec)
-```
-
-### Cost Calculation
-
-```python
-from token_calculator import CostCalculator, compare_model_costs
-
-# Calculate cost for a specific model
-calculator = CostCalculator("gpt-4")
-cost = calculator.calculate_cost(input_tokens=1000, output_tokens=500)
-
-print(f"Input cost: ${cost.input_cost:.4f}")
-print(f"Output cost: ${cost.output_cost:.4f}")
-print(f"Total cost: ${cost.total_cost:.4f}")
-
-# Estimate monthly costs
-monthly = calculator.estimate_monthly_cost(
-    requests_per_day=100,
-    avg_input_tokens=500,
-    avg_output_tokens=300
-)
-
-print(f"Monthly cost: ${monthly['monthly_cost']:.2f}")
-print(f"Yearly cost: ${monthly['yearly_cost']:.2f}")
-
-# Compare costs across models
-comparisons = compare_model_costs(
+# Track LLM calls
+tracker.track_call(
+    model="gpt-4",
     input_tokens=1000,
     output_tokens=500,
-    model_names=["gpt-4", "gpt-4o-mini", "claude-3-5-sonnet-20241022"]
+    agent_id="my-agent"
 )
 
-for comp in comparisons:
-    print(f"{comp['model']}: ${comp['total_cost']:.4f}")
+# Get costs
+report = tracker.get_costs(start_date="this-month")
+print(f"Total cost: ${report.total_cost:.2f}")
 ```
 
-### Conversation Management
+### 2. Multi-Agent Workflow
 
 ```python
-from token_calculator import ConversationManager
+from token_calculator import WorkflowTracker
 
-# Initialize conversation
-manager = ConversationManager(
-    model_name="gpt-4",
-    system_message="You are a helpful coding assistant.",
-)
+tracker = WorkflowTracker(workflow_id="my-workflow")
 
-# Add conversation turns
-manager.add_turn(
-    user_message="How do I optimize Python code?",
-    assistant_response="Here are some ways to optimize Python code..."
-)
+with tracker.track_agent("planner", model="gpt-4o") as ctx:
+    # Your agent code
+    ctx.track_call(input_tokens=500, output_tokens=100)
 
-manager.add_turn(
-    user_message="What about async programming?",
-    assistant_response="Async programming in Python..."
-)
+with tracker.track_agent("executor", model="gpt-4") as ctx:
+    # Your agent code
+    ctx.track_call(input_tokens=1000, output_tokens=300)
 
-# Get statistics
-stats = manager.get_stats()
-print(f"Total turns: {stats.total_turns}")
-print(f"Total cost: ${stats.total_cost:.4f}")
-print(f"Context usage: {stats.context_usage_percentage:.1f}%")
-print(f"Estimated remaining turns: {stats.estimated_turns_remaining}")
-
-# Check if we can add more turns
-can_add = manager.can_add_turn(
-    estimated_user_tokens=50,
-    estimated_assistant_tokens=200
-)
-print(can_add['recommendation'])
-
-# Summarize when needed
-if stats.context_usage_percentage > 70:
-    result = manager.summarize_conversation(keep_recent_turns=3)
-    print(f"Saved {result['tokens_saved']} tokens through summarization")
+analysis = tracker.analyze()
+print(f"Total cost: ${analysis.total_cost:.4f}")
 ```
 
-### Token Optimization
+### 3. Context Health Monitoring
 
 ```python
-from token_calculator import TokenOptimizer, optimize_prompt
+from token_calculator import ConversationMonitor
 
-# Optimize a prompt
-optimizer = TokenOptimizer("gpt-4")
+monitor = ConversationMonitor(model="gpt-4")
 
-prompt = """
-In order to complete this task, it is important to note that
-you should be very careful and really think about the best
-approach for the purpose of achieving optimal results.
-"""
-
-# Get optimization suggestions
-suggestions = optimizer.suggest_prompt_improvements(prompt)
-for suggestion in suggestions:
-    print(f"💡 {suggestion.strategy}")
-    print(f"   {suggestion.description}")
-    print(f"   Potential savings: {suggestion.estimated_tokens_saved} tokens")
-    print(f"   Impact: {suggestion.impact} | Effort: {suggestion.effort}")
-
-# Apply optimizations
-result = optimizer.optimize_text(prompt, aggressive=True)
-print(f"\nOriginal: {result.original_tokens} tokens")
-print(f"Optimized: {result.optimized_tokens} tokens")
-print(f"Saved: {result.tokens_saved} tokens ({result.reduction_percentage:.1f}%)")
-print(f"\nOptimized text:\n{result.optimized_text}")
-```
-
-### Model Search & Comparison
-
-```python
-from token_calculator import search_models, list_models, ModelProvider
-
-# List all models from a provider
-openai_models = list_models(provider=ModelProvider.OPENAI)
-print(f"OpenAI models: {openai_models}")
-
-# Search for models meeting specific criteria
-affordable_models = search_models(
-    min_context=32000,
-    max_cost_per_1k_input=0.001,
-    supports_function_calling=True
+monitor.add_turn(
+    user_message="What's the weather?",
+    assistant_message="I don't have real-time weather data."
 )
 
-print("Affordable models with 32k+ context and function calling:")
-for model in affordable_models:
-    print(f"  - {model}")
+health = monitor.check_health()
+if health.status != "healthy":
+    print(health.recommendations)
 ```
 
-## 📚 Advanced Usage
+## 📚 Complete Examples
 
-### Estimating Maximum Conversation Turns
+### AI Product Manager Daily Workflow
+
+See [`examples/ai_pm_daily_workflow.py`](examples/ai_pm_daily_workflow.py) for a complete example showing:
+
+- ✅ Morning cost review and anomaly detection
+- ✅ Budget tracking and forecasting
+- ✅ Multi-agent workflow tracking
+- ✅ Context health monitoring
+- ✅ Setting up alerts
+- ✅ Model selection and A/B testing
+- ✅ Incident investigation
+- ✅ Weekly executive reporting
+
+### LangChain Integration
+
+See [`examples/langchain_integration.py`](examples/langchain_integration.py) for:
+
+- ✅ Basic LangChain integration
+- ✅ Chain tracking
+- ✅ Multi-agent RAG systems
+- ✅ Production monitoring
+- ✅ Model optimization
+
+## 🏗️ Architecture
+
+Token Calculator uses a modular architecture:
+
+```
+Application Layer (Your Code)
+    ↓
+Tracking Layer (CostTracker, WorkflowTracker, ConversationMonitor)
+    ↓
+Intelligence Layer (Forecaster, ModelSelector, HealthCheck)
+    ↓
+Alert Layer (AlertManager, BudgetTracker)
+    ↓
+Storage Layer (SQLite, PostgreSQL, In-Memory)
+```
+
+### Storage Backends
+
+- **In-Memory**: Fast, for testing/development
+- **SQLite**: Production-ready for single-machine deployments
+- **PostgreSQL**: Multi-instance production deployments
 
 ```python
-from token_calculator import ContextAnalyzer
+# SQLite
+storage = create_storage("sqlite", db_path="costs.db")
 
-analyzer = ContextAnalyzer("gpt-4")
-
-# Estimate max turns with RAG and function calling
-estimate = analyzer.estimate_max_turns(
-    avg_user_tokens=100,
-    avg_assistant_tokens=300,
-    system_tokens=50,
-    rag_tokens=2000,  # RAG context
-    function_tokens=500  # Function definitions
+# PostgreSQL
+storage = create_storage(
+    "postgresql",
+    host="localhost",
+    database="token_calculator",
+    user="user",
+    password="pass"
 )
 
-print(f"Maximum conversation turns: {estimate['max_turns']}")
-print(f"Warning at turn: {estimate['warning_at_turn']}")
-print(f"Critical at turn: {estimate['critical_at_turn']}")
+# In-Memory
+storage = create_storage("memory")
 ```
 
-### Cost Savings Analysis
+## 📊 Supported Models
 
-```python
-from token_calculator import CostCalculator
+**40+ models** across 6 providers:
 
-calculator = CostCalculator("gpt-4")
+- ✅ **OpenAI**: GPT-4, GPT-4 Turbo, GPT-4o, GPT-4o-mini, GPT-3.5 Turbo
+- ✅ **Anthropic**: Claude 4.5 Opus, Claude 3.5 Sonnet, Claude 3.5 Haiku
+- ✅ **Google**: Gemini Pro, Gemini 1.5 Pro, Gemini 1.5 Flash
+- ✅ **Meta**: Llama 2, Llama 3, Llama 3.1 (all sizes)
+- ✅ **Mistral**: Mistral 7B, 8x7B, Small, Medium, Large
+- ✅ **Cohere**: Command, Command R, Command R+
 
-savings = calculator.estimate_cost_savings(
-    current_tokens=1000,
-    optimized_tokens=700,
-    requests_per_month=10000,
-    token_type="input"
-)
+## 🎯 Use Cases
 
-print(f"Tokens saved per request: {savings['tokens_saved_per_request']}")
-print(f"Reduction: {savings['reduction_percentage']:.1f}%")
-print(f"Monthly savings: ${savings['monthly_savings']:.2f}")
-print(f"Yearly savings: ${savings['yearly_savings']:.2f}")
+### For AI Product Managers
+
+- 📊 Track costs across all agents and workflows
+- 🎯 Identify which agents/users drive costs
+- 📈 Forecast costs and plan budgets
+- 🚨 Get alerted before incidents
+- 💡 Optimize model selection for cost/quality
+- 📋 Generate executive reports
+
+### For AI Engineers
+
+- 🔍 Debug token usage in complex workflows
+- 🏥 Monitor context health and prevent degradation
+- ⚡ Optimize prompts systematically
+- 🧪 A/B test different models
+- 🔌 Integrate with existing LangChain apps
+
+### For AI Teams
+
+- 💰 Shared budget tracking
+- 📊 Cross-team cost visibility
+- 🎯 Standardized monitoring
+- 🚨 Centralized alerting
+- 📈 Trend analysis
+
+## 🔧 Configuration
+
+### Environment Variables
+
+```bash
+# Storage
+export TOKEN_CALC_STORAGE=sqlite
+export TOKEN_CALC_STORAGE_PATH=/path/to/costs.db
+
+# Alerts
+export TOKEN_CALC_WEBHOOK_URL=https://hooks.slack.com/...
+
+# Default labels
+export TOKEN_CALC_DEFAULT_LABELS=environment:production,team:ai
 ```
 
-### Comparing Different Phrasings
+### Configuration File
 
-```python
-from token_calculator import TokenOptimizer
+```yaml
+# token_calculator.yaml
+storage:
+  backend: sqlite
+  path: ./costs.db
 
-optimizer = TokenOptimizer("gpt-4")
+tracking:
+  default_labels:
+    environment: production
+    team: ai-platform
 
-phrasings = [
-    "Please explain how this works",
-    "Explain how this works",
-    "How does this work?",
-    "How this works",
-]
+alerts:
+  rules:
+    - name: budget-exceeded
+      type: budget
+      threshold: 1.0
+      severity: critical
 
-comparisons = optimizer.compare_phrasings(phrasings)
-
-for comp in comparisons:
-    print(f"{comp['tokens']} tokens: {comp['text']}")
+budgets:
+  - name: monthly-prod
+    amount: 10000
+    period: monthly
 ```
 
-## 🎓 Use Cases
+## 📖 Documentation
 
-### 1. Development & Debugging
-- Understand token usage during development
-- Identify expensive prompts before production
-- Optimize prompts systematically
-
-### 2. Production Monitoring
-- Track token usage in real-time
-- Set up alerts for high context usage
-- Monitor costs across different features
-
-### 3. Cost Optimization
-- Identify cost-saving opportunities
-- Compare model alternatives
-- Optimize without sacrificing quality
-
-### 4. RAG Applications
-- Calculate token budget for context
-- Balance between context and generation
-- Optimize document chunking
-
-### 5. Agent Systems
-- Track tool call overhead
-- Manage multi-turn agent conversations
-- Prevent context overflow in loops
-
-## 🔧 Supported Models
-
-### OpenAI
-- GPT-4, GPT-4-32K, GPT-4-Turbo, GPT-4o, GPT-4o-mini
-- GPT-3.5-Turbo, GPT-3.5-Turbo-16K
-
-### Anthropic
-- Claude Opus 4.5, Claude 3 Opus, Claude 3.5 Sonnet, Claude 3 Sonnet
-- Claude 3 Haiku, Claude 3.5 Haiku
-
-### Google
-- Gemini Pro, Gemini 1.5 Pro, Gemini 1.5 Flash
-
-### Meta
-- Llama 2 (7B, 13B, 70B)
-- Llama 3 (8B, 70B)
-- Llama 3.1 (8B, 70B, 405B)
-
-### Mistral
-- Mistral 7B, Mistral 8x7B
-- Mistral Small, Medium, Large
-
-### Cohere
-- Command, Command Light
-- Command R, Command R Plus
-
-*More models added regularly!*
+- [Product Requirements Document](PRD.md) - Vision and requirements
+- [Architecture Design](ARCHITECTURE.md) - Technical architecture
+- [Gap Analysis](GAP_ANALYSIS.md) - Feature roadmap
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ## 🙏 Acknowledgments
 
-Built to make LLM development easier and more cost-effective for everyone.
+Built for AI Product Managers building the future of AI agents.
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/arunaryamdn/Know-your-tokens/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/arunaryamdn/Know-your-tokens/discussions)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/arunaryamdn/token-calculator/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/arunaryamdn/token-calculator/discussions)
+- 📧 **Email**: [Contact](mailto:support@tokencalculator.com)
 
 ---
 
-**Made with ❤️ for the LLM developer community**
+**Built with ❤️ for AI Product Managers**
+
+Stop guessing. Start measuring. Build better AI agents.
