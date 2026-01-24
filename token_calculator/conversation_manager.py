@@ -23,6 +23,20 @@ class MessageRole(Enum):
 
 
 @dataclass
+class Message:
+    """A single message in a conversation.
+
+    Attributes:
+        role: Message role (system, user, assistant)
+        content: Message content
+        tokens: Number of tokens in the message
+    """
+    role: str
+    content: str
+    tokens: int
+
+
+@dataclass
 class ConversationTurn:
     """A single turn in a conversation."""
     user_message: str

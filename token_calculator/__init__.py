@@ -5,7 +5,7 @@ A comprehensive Python package for understanding, analyzing, and optimizing
 LLM token usage across different models and providers.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __author__ = "Know Your Tokens Contributors"
 
 # Core models and configurations
@@ -46,6 +46,7 @@ from .conversation_manager import (
     ConversationTurn,
     ConversationStats,
     MessageRole,
+    Message,
 )
 
 # Token optimization
@@ -144,6 +145,7 @@ __all__ = [
     "ConversationTurn",
     "ConversationStats",
     "MessageRole",
+    "Message",
     # Optimizer
     "TokenOptimizer",
     "OptimizationSuggestion",
