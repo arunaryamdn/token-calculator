@@ -1,7 +1,7 @@
 # 🎯 Token Calculator
 
-[![PyPI version](https://badge.fury.io/py/token-calculator.svg)](https://badge.fury.io/py/token-calculator)
-[![Downloads](https://pepy.tech/badge/token-calculator)](https://pepy.tech/project/token-calculator)
+[![PyPI version](https://img.shields.io/pypi/v/token-calculator.svg)](https://pypi.org/project/token-calculator/)
+[![Downloads](https://img.shields.io/pypi/dm/token-calculator.svg)](https://pypi.org/project/token-calculator/)
 PyPI version Downloads
 
 **Production-Ready LLM Cost Management and Observability for AI Product Managers**
