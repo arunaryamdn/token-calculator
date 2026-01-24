@@ -3,6 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/token-calculator.svg)](https://badge.fury.io/py/token-calculator)
 [![Downloads](https://pepy.tech/badge/token-calculator)](https://pepy.tech/project/token-calculator)
 PyPI version Downloads
+
 **Production-Ready LLM Cost Management and Observability for AI Product Managers**
 
 Token Calculator is the comprehensive toolkit for building, monitoring, and optimizing production AI agents. Track costs across multi-agent workflows, detect context rot before it causes hallucinations, and make data-driven decisions about model selection—all with enterprise-grade observability.
