@@ -136,7 +136,7 @@ class ConversationMonitor:
         self.agent_id = agent_id
         self.context_analyzer = ContextAnalyzer(model)
         self.conversation_manager = ConversationManager(
-            model=model,
+            model_name=model,
             system_message=system_message,
         )
 
