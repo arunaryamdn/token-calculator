@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "token-calculator"
 version = "2.1.0"
-description = "LLM Token Optimization and Cost Management for Developers"
+description = "LLM Token Optimization and Cost Management for AI Product Managers and Developers"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
