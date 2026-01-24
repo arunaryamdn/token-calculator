@@ -11,7 +11,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="token-calculator",
-    version="0.1.0",
+    version="2.1.0",
     author="TokenCost Contributors",
     author_email="",
     description="LLM Token Optimization and Cost Management for Developers",
