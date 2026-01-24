@@ -1,4 +1,4 @@
-# Pull Request: Token Calculator v0.2.0 - Production-Ready for AI Product Managers
+# Pull Request: Token Calculator v2.1.0 - Production-Ready for AI Product Managers
 
 ## 📋 Summary
 
@@ -6,7 +6,7 @@ This PR transforms Token Calculator from a developer utility into a **comprehens
 
 ## 🎯 Overview
 
-**Version**: 0.1.0 → 0.2.0
+**Version**: 2.0.0 → 2.1.0
 **Lines Changed**: 7,200+ lines added
 **New Modules**: 8
 **New Classes**: 40+
@@ -98,7 +98,7 @@ This PR transforms Token Calculator from a developer utility into a **comprehens
 
 - **`__init__.py`**: Added exports for 40+ new classes
 - **README.md**: Complete rewrite targeting AI Product Managers
-- **Version**: Bumped to 0.2.0
+- **Version**: Bumped to 2.1.0
 
 ## 🐛 Bug Fixes
 
@@ -125,7 +125,7 @@ All imports verified:
 
 ### For AI Product Managers
 
-**Before v0.2.0**:
+**Before v2.1.0**:
 - ❌ No cost visibility across agents
 - ❌ No multi-agent workflow tracking
 - ❌ No context health monitoring
@@ -133,7 +133,7 @@ All imports verified:
 - ❌ No alerting system
 - ❌ Manual model selection
 
-**After v0.2.0**:
+**After v2.1.0**:
 - ✅ Full cost visibility with custom labels
 - ✅ Multi-agent workflow tracking with per-agent attribution
 - ✅ Context health monitoring with rot detection
@@ -203,7 +203,7 @@ New features are opt-in additions.
 - `PRD.md` (15 pages)
 - `ARCHITECTURE.md` (12 pages)
 - `GAP_ANALYSIS.md` (8 pages)
-- `RELEASE_NOTES_v0.2.0.md`
+- `RELEASE_NOTES_v2.1.0.md`
 
 ### Modified Files (3)
 - `token_calculator/__init__.py` (added 40+ exports, bumped version)
@@ -224,7 +224,7 @@ New features are opt-in additions.
 ## 🚀 Next Steps After Merge
 
 1. ✅ Merge this PR
-2. ✅ Create GitHub Release v0.2.0
+2. ✅ Create GitHub Release v2.1.0
 3. ✅ Publish to PyPI
 4. ✅ Announce to community
 
@@ -234,7 +234,7 @@ New features are opt-in additions.
 - [x] Examples provided for all features
 - [x] Documentation complete (PRD, Architecture, Gaps)
 - [x] Imports verified and working
-- [x] Version bumped (0.1.0 → 0.2.0)
+- [x] Version bumped (2.0.0 → 2.1.0)
 - [x] README updated
 - [x] Release notes prepared
 - [x] Backward compatibility maintained

@@ -1,9 +1,9 @@
-# PyPI Release Checklist for v0.2.0
+# PyPI Release Checklist for v2.1.0
 
 ## Pre-Release Verification
 
 ### 1. Version Check
-- [x] Version bumped in `token_calculator/__init__.py` (0.1.0 → 0.2.0)
+- [x] Version bumped in `token_calculator/__init__.py` (2.0.0 → 2.1.0)
 - [ ] Version matches in `setup.py` or `pyproject.toml`
 
 ### 2. Code Quality
@@ -16,7 +16,7 @@
 
 ### 3. Documentation
 - [x] README.md updated with new features
-- [x] RELEASE_NOTES_v0.2.0.md created
+- [x] RELEASE_NOTES_v2.1.0.md created
 - [x] Examples provided
 - [x] Docstrings complete
 
@@ -42,18 +42,18 @@ git pull origin main
 
 ```bash
 # Create annotated tag
-git tag -a v0.2.0 -m "Release v0.2.0 - Production-ready for AI Product Managers"
+git tag -a v2.1.0 -m "Release v2.1.0 - Production-ready for AI Product Managers"
 
 # Push tag
-git push origin v0.2.0
+git push origin v2.1.0
 ```
 
 ### Step 3: Create GitHub Release
 
 1. Go to: https://github.com/arunaryamdn/token-calculator/releases/new
-2. Choose tag: v0.2.0
-3. Release title: "v0.2.0 - Production-Ready for AI Product Managers"
-4. Copy release notes from `RELEASE_NOTES_v0.2.0.md`
+2. Choose tag: v2.1.0
+3. Release title: "v2.1.0 - Production-Ready for AI Product Managers"
+4. Copy release notes from `RELEASE_NOTES_v2.1.0.md`
 5. Mark as "Latest release"
 6. Publish release
 
@@ -72,8 +72,8 @@ python -m build
 # Verify builds
 ls -lh dist/
 # Should see:
-# token_calculator-0.2.0-py3-none-any.whl
-# token_calculator-0.2.0.tar.gz
+# token_calculator-2.1.0-py3-none-any.whl
+# token_calculator-2.1.0.tar.gz
 ```
 
 ### Step 5: Test on TestPyPI (Optional but Recommended)
@@ -83,7 +83,7 @@ ls -lh dist/
 python -m twine upload --repository testpypi dist/*
 
 # Test installation from TestPyPI
-pip install --index-url https://test.pypi.org/simple/ token-calculator==0.2.0
+pip install --index-url https://test.pypi.org/simple/ token-calculator==2.1.0
 
 # Verify imports
 python -c "from token_calculator import CostTracker, WorkflowTracker, ConversationMonitor; print('✅ All imports work!')"
@@ -105,11 +105,11 @@ python -m twine upload dist/*
 ```bash
 # Wait a few minutes, then install from PyPI
 pip uninstall token-calculator -y
-pip install token-calculator==0.2.0
+pip install token-calculator==2.1.0
 
 # Verify version
 python -c "import token_calculator; print(token_calculator.__version__)"
-# Should print: 0.2.0
+# Should print: 2.1.0
 
 # Test imports
 python -c "
@@ -125,7 +125,7 @@ from token_calculator import (
     Message
 )
 print('✅ All new features available!')
-print('✅ Version 0.2.0 successfully published!')
+print('✅ Version 2.1.0 successfully published!')
 "
 ```
 
@@ -139,9 +139,9 @@ print('✅ Version 0.2.0 successfully published!')
 
 **GitHub Discussions**:
 ```
-🎉 Token Calculator v0.2.0 Released!
+🎉 Token Calculator v2.1.0 Released!
 
-We're excited to announce v0.2.0 - a major release transforming Token Calculator into a production-ready LLM observability platform for AI Product Managers!
+We're excited to announce v2.1.0 - a major release transforming Token Calculator into a production-ready LLM observability platform for AI Product Managers!
 
 🚀 What's New:
 - Multi-backend storage (SQLite, PostgreSQL)
@@ -153,16 +153,16 @@ We're excited to announce v0.2.0 - a major release transforming Token Calculator
 - Model recommendation engine
 - LangChain integration
 
-📦 Install: pip install token-calculator==0.2.0
+📦 Install: pip install token-calculator==2.1.0
 📖 Docs: See PRD.md, ARCHITECTURE.md
 💡 Examples: examples/ai_pm_daily_workflow.py
 
-Full release notes: RELEASE_NOTES_v0.2.0.md
+Full release notes: RELEASE_NOTES_v2.1.0.md
 ```
 
 **Twitter/Social Media** (if applicable):
 ```
-🎉 Just released Token Calculator v0.2.0!
+🎉 Just released Token Calculator v2.1.0!
 
 Now with production-ready features for AI Product Managers:
 ✅ Multi-agent workflow tracking
@@ -171,7 +171,7 @@ Now with production-ready features for AI Product Managers:
 ✅ Real-time alerting
 ✅ Model recommendations
 
-pip install token-calculator==0.2.0
+pip install token-calculator==2.1.0
 
 #AI #LLM #ProductManagement
 ```
@@ -182,7 +182,7 @@ pip install token-calculator==0.2.0
 
 ### Check PyPI
 - [ ] Package visible at https://pypi.org/project/token-calculator/
-- [ ] Version 0.2.0 shows as latest
+- [ ] Version 2.1.0 shows as latest
 - [ ] README renders correctly
 - [ ] Download stats updating
 
@@ -191,7 +191,7 @@ pip install token-calculator==0.2.0
 # In a fresh virtual environment
 python -m venv test_env
 source test_env/bin/activate
-pip install token-calculator==0.2.0
+pip install token-calculator==2.1.0
 
 # Run examples
 python -c "
@@ -265,8 +265,8 @@ Password: pypi-AgE... (your token)
 ## Success Criteria
 
 Release is successful when:
-- ✅ PyPI shows v0.2.0 as latest
-- ✅ `pip install token-calculator==0.2.0` works
+- ✅ PyPI shows v2.1.0 as latest
+- ✅ `pip install token-calculator==2.1.0` works
 - ✅ All imports work in fresh environment
 - ✅ Examples run without errors
 - ✅ No critical issues reported in first 24 hours
@@ -288,4 +288,4 @@ If you encounter issues during release:
 **Ready to release! 🚀**
 
 Last Updated: 2026-01-24
-Version: 0.2.0
+Version: 2.1.0

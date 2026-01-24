@@ -1,10 +1,10 @@
-# Token Calculator v0.2.0 Release Notes
+# Token Calculator v2.1.0 Release Notes
 
 **Release Date**: 2026-01-24
 
 ## 🎉 Major Release: Production-Ready for AI Product Managers
 
-Token Calculator v0.2.0 transforms the package from a developer utility into a **comprehensive LLM observability platform** specifically designed for AI Product Managers building production multi-agent systems.
+Token Calculator v2.1.0 transforms the package from a developer utility into a **comprehensive LLM observability platform** specifically designed for AI Product Managers building production multi-agent systems.
 
 ---
 
@@ -328,7 +328,7 @@ result = llm.invoke("Hello!")
 
 ## 🔧 Bug Fixes
 
-### Fixed in v0.2.0
+### Fixed in v2.1.0
 
 1. **Missing Message class** (Issue #1)
    - Added `Message` dataclass to `conversation_manager.py`
@@ -410,7 +410,7 @@ from token_calculator import (
 
 ## 🔄 Migration Guide
 
-### From v0.1.0 to v0.2.0
+### From v2.0.0 to v2.1.0
 
 **No breaking changes!** All existing code continues to work.
 
@@ -442,7 +442,7 @@ tracker.track_call(
 ### Installation
 
 ```bash
-pip install token-calculator==0.2.0
+pip install token-calculator==2.1.0
 ```
 
 ### Basic Usage
