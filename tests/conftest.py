@@ -1,24 +1,24 @@
 """pytest configuration and fixtures for token-calculator tests."""
 
-import pytest
 import tempfile
-from pathlib import Path
 from datetime import datetime, timedelta
-from typing import List, Dict
+from pathlib import Path
+from typing import Dict, List
+
+import pytest
 
 from token_calculator import (
-    InMemoryStorage,
-    SQLiteStorage,
-    CostTracker,
-    WorkflowTracker,
     AlertManager,
     BudgetTracker,
-    CostForecaster,
     ConversationMonitor,
+    CostForecaster,
+    CostTracker,
+    InMemoryStorage,
     ModelSelector,
+    SQLiteStorage,
     TrackingEvent,
+    WorkflowTracker,
 )
-
 
 # ============================================================================
 # Storage Backend Fixtures
@@ -275,9 +275,7 @@ def time_series_storage(memory_storage):
 def sample_workflow(workflow_tracker):
     """Sample workflow with multiple agents."""
     # Start workflow
-    workflow_id = workflow_tracker.start_workflow(
-        name="data-pipeline", description="Test workflow"
-    )
+    workflow_id = workflow_tracker.start_workflow(name="data-pipeline", description="Test workflow")
 
     # Track agents
     workflow_tracker.track_agent(
@@ -368,9 +366,7 @@ def sample_model_requirements():
 @pytest.fixture
 def active_budget(budget_tracker):
     """Active budget for testing."""
-    budget_tracker.set_budget(
-        amount=1000.0, period="monthly", name="test-budget"
-    )
+    budget_tracker.set_budget(amount=1000.0, period="monthly", name="test-budget")
     return budget_tracker
 
 

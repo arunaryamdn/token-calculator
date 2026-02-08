@@ -302,8 +302,7 @@ class SQLiteStorage(StorageBackend):
             conn = self._persistent_conn
             cursor = conn.cursor()
 
-            cursor.execute(
-                """
+            cursor.execute("""
                 CREATE TABLE IF NOT EXISTS events (
                     event_id TEXT PRIMARY KEY,
                     timestamp TEXT NOT NULL,
@@ -316,22 +315,13 @@ class SQLiteStorage(StorageBackend):
                     labels TEXT,
                     metadata TEXT
                 )
-            """
-            )
+            """)
 
             # Create indexes for common queries
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)"
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)"
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_model ON events(model)"
-            )
-            cursor.execute(
-                "CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)"
-            )
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_model ON events(model)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)")
 
             conn.commit()
         else:
@@ -339,8 +329,7 @@ class SQLiteStorage(StorageBackend):
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute(
-                    """
+                cursor.execute("""
                     CREATE TABLE IF NOT EXISTS events (
                         event_id TEXT PRIMARY KEY,
                         timestamp TEXT NOT NULL,
@@ -353,22 +342,13 @@ class SQLiteStorage(StorageBackend):
                         labels TEXT,
                         metadata TEXT
                     )
-                """
-                )
+                """)
 
                 # Create indexes for common queries
-                cursor.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)"
-                )
-                cursor.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)"
-                )
-                cursor.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_model ON events(model)"
-                )
-                cursor.execute(
-                    "CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)"
-                )
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_model ON events(model)")
+                cursor.execute("CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)")
 
                 conn.commit()
 
@@ -775,9 +755,7 @@ class SQLiteStorage(StorageBackend):
             conn = self._persistent_conn
             cursor = conn.cursor()
 
-            cursor.execute(
-                "DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),)
-            )
+            cursor.execute("DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),))
 
             deleted = cursor.rowcount
             conn.commit()
@@ -787,9 +765,7 @@ class SQLiteStorage(StorageBackend):
             with sqlite3.connect(self.db_path) as conn:
                 cursor = conn.cursor()
 
-                cursor.execute(
-                    "DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),)
-                )
+                cursor.execute("DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),))
 
                 deleted = cursor.rowcount
                 conn.commit()

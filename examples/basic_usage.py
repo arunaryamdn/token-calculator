@@ -3,11 +3,11 @@ Basic usage examples for token-calculator package.
 """
 
 from token_calculator import (
-    count_tokens,
-    analyze_prompt,
-    TokenCounter,
-    list_models,
     ModelProvider,
+    TokenCounter,
+    analyze_prompt,
+    count_tokens,
+    list_models,
 )
 
 
@@ -92,9 +92,9 @@ def example_3_comprehensive_analysis():
     print(f"  Input cost: ${analysis['cost']['input_cost']:.6f}")
     print(f"  Output cost: ${analysis['cost']['output_cost']:.6f}")
 
-    if analysis['optimization']['suggestions_count'] > 0:
+    if analysis["optimization"]["suggestions_count"] > 0:
         print(f"\nOptimization suggestions ({analysis['optimization']['suggestions_count']}):")
-        for i, suggestion in enumerate(analysis['optimization']['suggestions'], 1):
+        for i, suggestion in enumerate(analysis["optimization"]["suggestions"], 1):
             print(f"{i}. {suggestion['strategy']}")
             print(f"   {suggestion['description']}")
             print(f"   Potential savings: {suggestion['tokens_saved']} tokens")

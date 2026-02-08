@@ -3,11 +3,12 @@ Tests for models module.
 """
 
 import pytest
+
 from token_calculator.models import (
+    ModelProvider,
     get_model_config,
     list_models,
     search_models,
-    ModelProvider,
 )
 
 

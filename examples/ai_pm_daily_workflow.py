@@ -12,15 +12,15 @@ Scenario: Managing a customer support agent system with:
 """
 
 from token_calculator import (
-    CostTracker,
-    WorkflowTracker,
+    AlertManager,
+    AlertRule,
+    BudgetTracker,
     ConversationMonitor,
     CostForecaster,
-    BudgetTracker,
-    AlertManager,
+    CostTracker,
     ModelSelector,
+    WorkflowTracker,
     create_storage,
-    AlertRule,
 )
 
 
@@ -33,8 +33,7 @@ def morning_cost_review():
     # Setup tracker with persistent storage
     storage = create_storage("sqlite", db_path="production_costs.db")
     tracker = CostTracker(
-        storage=storage,
-        default_labels={"environment": "production", "team": "ai-platform"}
+        storage=storage, default_labels={"environment": "production", "team": "ai-platform"}
     )
 
     # 1. Get yesterday's costs by agent
@@ -42,16 +41,14 @@ def morning_cost_review():
     yesterday_costs = tracker.get_costs(
         start_date="yesterday",
         group_by=["agent_id", "model"],
-        filters={"environment": "production"}
+        filters={"environment": "production"},
     )
     print(yesterday_costs)
 
     # 2. Detect cost anomalies
     print("\n🔍 Cost Anomaly Detection:")
     anomalies = tracker.detect_anomalies(
-        dimension="agent_id",
-        threshold=2.0,  # Alert if 2x normal
-        lookback_days=7
+        dimension="agent_id", threshold=2.0, lookback_days=7  # Alert if 2x normal
     )
 
     if anomalies:
@@ -84,7 +81,7 @@ def check_budgets(tracker):
         amount=10000,  # $10k/month
         period="monthly",
         filters={"environment": "production"},
-        name="production-monthly"
+        name="production-monthly",
     )
 
     # Check status
@@ -103,7 +100,7 @@ def check_budgets(tracker):
         name="2x User Growth",
         description="Model doubling our user base",
         multipliers={"traffic": 2.0},
-        expected_usage={}
+        expected_usage={},
     )
 
     scenario_result = forecaster.scenario_model(growth_scenario)
@@ -121,7 +118,7 @@ def track_multi_agent_workflow():
         workflow_id="customer-support-session-123",
         storage=create_storage("sqlite", db_path="production_costs.db"),
         environment="production",
-        customer_id="cust_abc123"
+        customer_id="cust_abc123",
     )
 
     # Simulate classifier agent
@@ -173,10 +170,7 @@ def monitor_conversation_health():
     print("=" * 60)
 
     # Setup monitor
-    monitor = ConversationMonitor(
-        model="gpt-4",
-        agent_id="complex-support-agent"
-    )
+    monitor = ConversationMonitor(model="gpt-4", agent_id="complex-support-agent")
 
     # Simulate a long conversation
     conversation_turns = [
@@ -211,9 +205,7 @@ def monitor_conversation_health():
     if final_health.status in ["context_rot", "hallucination_risk"]:
         print("\n⚙️  Compressing context...")
         compression = monitor.compress_context(
-            strategy="semantic",
-            target_tokens=4000,
-            keep_recent=3
+            strategy="semantic", target_tokens=4000, keep_recent=3
         )
         print(compression)
 
@@ -224,31 +216,33 @@ def setup_alerting():
     print("ALERTING SETUP")
     print("=" * 60)
 
-    alerts = AlertManager(
-        webhook_url="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-    )
+    alerts = AlertManager(webhook_url="https://hooks.slack.com/services/YOUR/WEBHOOK/URL")
 
     # 1. Budget alert (80% threshold)
     print("\n📢 Setting up budget alert (80% threshold)...")
-    alerts.add_rule(AlertRule(
-        name="budget-80pct",
-        condition=lambda e: False,  # Would check cumulative budget
-        severity="warning",
-        message_template="Monthly budget 80% consumed",
-        channels=["console", "webhook"],
-        cooldown_minutes=60
-    ))
+    alerts.add_rule(
+        AlertRule(
+            name="budget-80pct",
+            condition=lambda e: False,  # Would check cumulative budget
+            severity="warning",
+            message_template="Monthly budget 80% consumed",
+            channels=["console", "webhook"],
+            cooldown_minutes=60,
+        )
+    )
 
     # 2. High cost call alert
     print("📢 Setting up high cost call alert...")
-    alerts.add_rule(AlertRule(
-        name="expensive-call",
-        condition=lambda e: e.cost > 1.0,
-        severity="warning",
-        message_template="High cost LLM call: ${cost:.2f} for {agent_id}",
-        channels=["console"],
-        cooldown_minutes=30
-    ))
+    alerts.add_rule(
+        AlertRule(
+            name="expensive-call",
+            condition=lambda e: e.cost > 1.0,
+            severity="warning",
+            message_template="High cost LLM call: ${cost:.2f} for {agent_id}",
+            channels=["console"],
+            cooldown_minutes=30,
+        )
+    )
 
     # 3. Context overflow warning
     print("📢 Setting up context overflow alert...")
@@ -264,19 +258,14 @@ def model_selection_workflow():
     print("MODEL SELECTION & A/B TESTING")
     print("=" * 60)
 
-    selector = ModelSelector(
-        storage=create_storage("sqlite", db_path="production_costs.db")
-    )
+    selector = ModelSelector(storage=create_storage("sqlite", db_path="production_costs.db"))
 
     # Get recommendation for simple Q&A
     print("\n🎯 Finding best model for simple Q&A:")
     rec = selector.recommend(
         current_model="gpt-4",
-        requirements={
-            "max_cost_per_1k": 0.01,
-            "min_context": 8000
-        },
-        usage_context="simple_qa"
+        requirements={"max_cost_per_1k": 0.01, "min_context": 8000},
+        usage_context="simple_qa",
     )
     print(rec)
 
@@ -287,7 +276,7 @@ def model_selection_workflow():
         model_a="gpt-4",
         model_b="gpt-4o",
         traffic_split=0.1,  # 10% to GPT-4o
-        duration_days=7
+        duration_days=7,
     )
     print(f"✅ Test '{test.name}' created")
     print(f"   Duration: {test.duration_days} days")
@@ -301,9 +290,7 @@ def incident_investigation():
     print("INCIDENT INVESTIGATION: Cost Spike")
     print("=" * 60)
 
-    tracker = CostTracker(
-        storage=create_storage("sqlite", db_path="production_costs.db")
-    )
+    tracker = CostTracker(storage=create_storage("sqlite", db_path="production_costs.db"))
 
     print("\n🚨 Incident: Cost spike detected at 2:00 PM")
     print("\n🔍 Step 1: Get costs during incident window")
@@ -312,16 +299,14 @@ def incident_investigation():
     incident_costs = tracker.get_costs(
         start_date="2024-01-20T14:00:00",
         end_date="2024-01-20T15:00:00",
-        group_by=["agent_id", "user_id", "model"]
+        group_by=["agent_id", "user_id", "model"],
     )
 
     print(incident_costs)
 
     print("\n🔍 Step 2: Compare to baseline (same hour yesterday)")
     baseline_costs = tracker.get_costs(
-        start_date="2024-01-19T14:00:00",
-        end_date="2024-01-19T15:00:00",
-        group_by=["agent_id"]
+        start_date="2024-01-19T14:00:00", end_date="2024-01-19T15:00:00", group_by=["agent_id"]
     )
 
     print(f"Baseline cost: ${baseline_costs.total_cost:.2f}")
@@ -343,15 +328,10 @@ def weekly_executive_report():
     print("WEEKLY EXECUTIVE REPORT")
     print("=" * 60)
 
-    tracker = CostTracker(
-        storage=create_storage("sqlite", db_path="production_costs.db")
-    )
+    tracker = CostTracker(storage=create_storage("sqlite", db_path="production_costs.db"))
 
     # This week
-    this_week = tracker.get_costs(
-        start_date="this-week",
-        group_by=["agent_id"]
-    )
+    this_week = tracker.get_costs(start_date="this-week", group_by=["agent_id"])
 
     print("\n📊 This Week Summary:")
     print(f"   Total Cost: ${this_week.total_cost:.2f}")

@@ -57,9 +57,9 @@ def example_2_monthly_cost_estimation():
     print(f"Monthly cost: ${monthly_estimate['monthly_cost']:.2f}")
     print(f"Yearly cost: ${monthly_estimate['yearly_cost']:.2f}")
 
-    if monthly_estimate['warnings']:
+    if monthly_estimate["warnings"]:
         print("\nWarnings:")
-        for warning in monthly_estimate['warnings']:
+        for warning in monthly_estimate["warnings"]:
             print(f"  {warning}")
 
 
@@ -94,13 +94,11 @@ def example_3_compare_models():
     print("-" * 64)
 
     for comp in comparisons:
-        print(
-            f"{comp['model']:<40} ${comp['total_cost']:<11.6f} {comp['provider']:<12}"
-        )
+        print(f"{comp['model']:<40} ${comp['total_cost']:<11.6f} {comp['provider']:<12}")
 
     # Calculate savings
-    most_expensive = comparisons[-1]['total_cost']
-    cheapest = comparisons[0]['total_cost']
+    most_expensive = comparisons[-1]["total_cost"]
+    cheapest = comparisons[0]["total_cost"]
     savings = most_expensive - cheapest
     savings_pct = (savings / most_expensive) * 100
 

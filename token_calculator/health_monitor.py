@@ -143,9 +143,7 @@ class ConversationMonitor:
         # Track conversation history
         self.messages: List[Message] = []
         if system_message:
-            self.messages.append(
-                Message(role="system", content=system_message, tokens=0)
-            )
+            self.messages.append(Message(role="system", content=system_message, tokens=0))
 
         # Track metrics over time
         self.turn_metrics: List[Dict[str, Any]] = []
@@ -239,9 +237,7 @@ class ConversationMonitor:
 
         # Generate warnings and recommendations
         warnings = self._generate_warnings(context_usage, rot_percentage, analysis)
-        recommendations = self._generate_recommendations(
-            status, context_usage, rot_percentage
-        )
+        recommendations = self._generate_recommendations(status, context_usage, rot_percentage)
 
         return HealthStatus(
             status=status,
@@ -316,9 +312,7 @@ class ConversationMonitor:
         else:
             raise ValueError(f"Unknown compression strategy: {strategy}")
 
-        compressed_tokens = sum(
-            count_tokens(m.content, self.model) for m in compressed
-        )
+        compressed_tokens = sum(count_tokens(m.content, self.model) for m in compressed)
 
         # Generate summary
         removed = len(self.messages) - len(compressed)
@@ -342,12 +336,12 @@ class ConversationMonitor:
         - Short messages have higher rot probability
         """
         from .constants import (
-            MIN_MESSAGES_FOR_ROT,
-            OLD_MESSAGE_THRESHOLD,
             AGE_FACTOR_DIVISOR,
             AGE_MULTIPLIER,
-            SHORT_MESSAGE_TOKENS,
+            MIN_MESSAGES_FOR_ROT,
+            OLD_MESSAGE_THRESHOLD,
             REPETITION_WINDOW,
+            SHORT_MESSAGE_TOKENS,
         )
 
         if len(self.messages) <= MIN_MESSAGES_FOR_ROT:
@@ -381,16 +375,19 @@ class ConversationMonitor:
             avg_len = sum(len(m) for m in recent_msgs) / len(recent_msgs)
             if all(abs(len(m) - avg_len) < avg_len * 0.2 for m in recent_msgs):
                 # Repetitive pattern detected
-                rot_score += sum(
-                    m.tokens for m in self.messages[-REPETITION_WINDOW:] if m.role == "assistant"
-                ) * 0.4
+                rot_score += (
+                    sum(
+                        m.tokens
+                        for m in self.messages[-REPETITION_WINDOW:]
+                        if m.role == "assistant"
+                    )
+                    * 0.4
+                )
 
         rot_percentage = (rot_score / total_tokens) * 100
         return min(100, rot_percentage)
 
-    def _calculate_quality_score(
-        self, analysis, rot_percentage: float
-    ) -> float:
+    def _calculate_quality_score(self, analysis, rot_percentage: float) -> float:
         """Calculate overall quality score (0-100)."""
         # Start at 100
         score = 100.0
@@ -440,14 +437,10 @@ class ConversationMonitor:
         warnings = []
 
         if context_usage > 90:
-            warnings.append(
-                f"Context window {context_usage:.1f}% full - overflow imminent"
-            )
+            warnings.append(f"Context window {context_usage:.1f}% full - overflow imminent")
 
         if context_usage > 85:
-            warnings.append(
-                "High context usage may degrade response quality"
-            )
+            warnings.append("High context usage may degrade response quality")
 
         if rot_percentage > 40:
             warnings.append(
@@ -460,15 +453,11 @@ class ConversationMonitor:
             )
 
         # Check for assistant message repetition
-        recent_assistant = [
-            m for m in self.messages[-10:] if m.role == "assistant"
-        ]
+        recent_assistant = [m for m in self.messages[-10:] if m.role == "assistant"]
         if len(recent_assistant) > 3:
             avg_len = sum(m.tokens for m in recent_assistant) / len(recent_assistant)
             if all(abs(m.tokens - avg_len) < avg_len * 0.2 for m in recent_assistant):
-                warnings.append(
-                    "Detected repetitive responses - possible context confusion"
-                )
+                warnings.append("Detected repetitive responses - possible context confusion")
 
         return warnings
 
@@ -482,9 +471,7 @@ class ConversationMonitor:
         recommendations = []
 
         if status == "critical":
-            recommendations.append(
-                "URGENT: Compress context or start new conversation immediately"
-            )
+            recommendations.append("URGENT: Compress context or start new conversation immediately")
 
         if status == "hallucination_risk":
             recommendations.append(
@@ -497,9 +484,7 @@ class ConversationMonitor:
             )
 
         if context_usage > 70 and status == "healthy":
-            recommendations.append(
-                "Proactively compress context to maintain quality"
-            )
+            recommendations.append("Proactively compress context to maintain quality")
 
         if len(self.messages) > 30:
             recommendations.append(
@@ -520,7 +505,7 @@ class ConversationMonitor:
         compressed.extend(system_msgs)
 
         # Keep recent turns (user + assistant pairs)
-        recent_messages = self.messages[-keep_recent * 2:]
+        recent_messages = self.messages[-keep_recent * 2 :]
         compressed.extend(recent_messages)
 
         return compressed
@@ -539,20 +524,17 @@ class ConversationMonitor:
         current_tokens = sum(m.tokens for m in compressed)
 
         # Always keep recent turns
-        recent_messages = self.messages[-keep_recent * 2:]
+        recent_messages = self.messages[-keep_recent * 2 :]
         compressed.extend(recent_messages)
         current_tokens += sum(m.tokens for m in recent_messages)
 
         # Add important older messages until we hit target
         older_messages = [
-            m for m in self.messages
-            if m not in system_msgs and m not in recent_messages
+            m for m in self.messages if m not in system_msgs and m not in recent_messages
         ]
 
         # Score messages by importance (longer messages = more important)
-        scored_messages = [
-            (m, m.tokens) for m in older_messages
-        ]
+        scored_messages = [(m, m.tokens) for m in older_messages]
         scored_messages.sort(key=lambda x: x[1], reverse=True)
 
         for msg, score in scored_messages:

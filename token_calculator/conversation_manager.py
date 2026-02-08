@@ -3,18 +3,19 @@ Conversation manager for tracking multi-turn chats and context usage.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from .models import get_model_config
-from .tokenizer import TokenCounter
 from .context_analyzer import ContextAnalyzer, ContextStatus
 from .cost_calculator import CostCalculator
+from .models import get_model_config
+from .tokenizer import TokenCounter
 
 
 class MessageRole(Enum):
     """Message roles in a conversation."""
+
     SYSTEM = "system"
     USER = "user"
     ASSISTANT = "assistant"
@@ -31,6 +32,7 @@ class Message:
         content: Message content
         tokens: Number of tokens in the message
     """
+
     role: str
     content: str
     tokens: int
@@ -39,6 +41,7 @@ class Message:
 @dataclass
 class ConversationTurn:
     """A single turn in a conversation."""
+
     user_message: str
     assistant_response: str
     user_tokens: int
@@ -52,6 +55,7 @@ class ConversationTurn:
 @dataclass
 class ConversationStats:
     """Statistics for a conversation."""
+
     total_turns: int
     total_tokens: int
     total_cost: float
@@ -98,10 +102,12 @@ class ConversationManager:
 
         # Add system message if provided
         if system_message:
-            self.messages.append({
-                'role': MessageRole.SYSTEM.value,
-                'content': system_message,
-            })
+            self.messages.append(
+                {
+                    "role": MessageRole.SYSTEM.value,
+                    "content": system_message,
+                }
+            )
 
         # Calculate fixed overhead
         self.fixed_overhead = self._calculate_fixed_overhead()
@@ -113,8 +119,8 @@ class ConversationManager:
         # System message tokens
         if self.messages:
             for msg in self.messages:
-                if msg.get('role') == MessageRole.SYSTEM.value:
-                    overhead += self.token_counter.count_tokens(msg.get('content', ''))
+                if msg.get("role") == MessageRole.SYSTEM.value:
+                    overhead += self.token_counter.count_tokens(msg.get("content", ""))
 
         # RAG context tokens
         if self.rag_context:
@@ -167,14 +173,18 @@ class ConversationManager:
         )
 
         # Add to messages
-        self.messages.append({
-            'role': MessageRole.USER.value,
-            'content': user_message,
-        })
-        self.messages.append({
-            'role': MessageRole.ASSISTANT.value,
-            'content': assistant_response,
-        })
+        self.messages.append(
+            {
+                "role": MessageRole.USER.value,
+                "content": user_message,
+            }
+        )
+        self.messages.append(
+            {
+                "role": MessageRole.ASSISTANT.value,
+                "content": assistant_response,
+            }
+        )
 
         # Add to turns
         self.turns.append(turn)
@@ -204,7 +214,9 @@ class ConversationManager:
         if self.turns:
             avg_tokens_per_turn = total_tokens / len(self.turns)
             available_tokens = self.model_config.context_window - analysis.total_tokens
-            estimated_remaining = int(available_tokens / avg_tokens_per_turn) if avg_tokens_per_turn > 0 else 0
+            estimated_remaining = (
+                int(available_tokens / avg_tokens_per_turn) if avg_tokens_per_turn > 0 else 0
+            )
         else:
             estimated_remaining = 0
 
@@ -242,18 +254,22 @@ class ConversationManager:
         )
 
         # Calculate tokens after adding turn
-        tokens_after = current_analysis.total_tokens + estimated_user_tokens + estimated_assistant_tokens
+        tokens_after = (
+            current_analysis.total_tokens + estimated_user_tokens + estimated_assistant_tokens
+        )
 
         can_add = tokens_after <= self.model_config.max_input_tokens
 
         return {
-            'can_add': can_add,
-            'current_tokens': current_analysis.total_tokens,
-            'tokens_after': tokens_after,
-            'context_window': self.model_config.context_window,
-            'max_input_tokens': self.model_config.max_input_tokens,
-            'overflow': max(0, tokens_after - self.model_config.max_input_tokens),
-            'recommendation': self._get_turn_recommendation(can_add, tokens_after, current_analysis.total_tokens),
+            "can_add": can_add,
+            "current_tokens": current_analysis.total_tokens,
+            "tokens_after": tokens_after,
+            "context_window": self.model_config.context_window,
+            "max_input_tokens": self.model_config.max_input_tokens,
+            "overflow": max(0, tokens_after - self.model_config.max_input_tokens),
+            "recommendation": self._get_turn_recommendation(
+                can_add, tokens_after, current_analysis.total_tokens
+            ),
         }
 
     def _get_turn_recommendation(
@@ -292,9 +308,9 @@ class ConversationManager:
         """
         if len(self.turns) <= keep_recent_turns:
             return {
-                'summarized': False,
-                'reason': 'Not enough turns to summarize',
-                'total_turns': len(self.turns),
+                "summarized": False,
+                "reason": "Not enough turns to summarize",
+                "total_turns": len(self.turns),
             }
 
         # Create summary of older turns
@@ -319,39 +335,45 @@ class ConversationManager:
 
         # Keep system message
         for msg in self.messages:
-            if msg.get('role') == MessageRole.SYSTEM.value:
+            if msg.get("role") == MessageRole.SYSTEM.value:
                 new_messages.append(msg)
 
         # Add summary
-        new_messages.append({
-            'role': MessageRole.SYSTEM.value,
-            'content': summary,
-        })
+        new_messages.append(
+            {
+                "role": MessageRole.SYSTEM.value,
+                "content": summary,
+            }
+        )
 
         # Add recent turns
         for turn in recent_turns:
-            new_messages.append({
-                'role': MessageRole.USER.value,
-                'content': turn.user_message,
-            })
-            new_messages.append({
-                'role': MessageRole.ASSISTANT.value,
-                'content': turn.assistant_response,
-            })
+            new_messages.append(
+                {
+                    "role": MessageRole.USER.value,
+                    "content": turn.user_message,
+                }
+            )
+            new_messages.append(
+                {
+                    "role": MessageRole.ASSISTANT.value,
+                    "content": turn.assistant_response,
+                }
+            )
 
         # Update state
         old_message_count = len(self.messages)
         self.messages = new_messages
 
         return {
-            'summarized': True,
-            'original_turns': len(older_turns),
-            'kept_turns': len(recent_turns),
-            'original_tokens': original_tokens,
-            'summary_tokens': summary_tokens,
-            'tokens_saved': original_tokens - summary_tokens,
-            'old_message_count': old_message_count,
-            'new_message_count': len(self.messages),
+            "summarized": True,
+            "original_turns": len(older_turns),
+            "kept_turns": len(recent_turns),
+            "original_tokens": original_tokens,
+            "summary_tokens": summary_tokens,
+            "tokens_saved": original_tokens - summary_tokens,
+            "old_message_count": old_message_count,
+            "new_message_count": len(self.messages),
         }
 
     def get_context_breakdown(self) -> Dict[str, Any]:
@@ -367,14 +389,14 @@ class ConversationManager:
         )
 
         return {
-            'total_tokens': analysis.total_tokens,
-            'context_window': analysis.context_window,
-            'usage_percentage': analysis.usage_percentage,
-            'status': analysis.status.value,
-            'breakdown': analysis.input_breakdown,
-            'available_for_output': analysis.available_for_output,
-            'warnings': analysis.warnings,
-            'recommendations': analysis.recommendations,
+            "total_tokens": analysis.total_tokens,
+            "context_window": analysis.context_window,
+            "usage_percentage": analysis.usage_percentage,
+            "status": analysis.status.value,
+            "breakdown": analysis.input_breakdown,
+            "available_for_output": analysis.available_for_output,
+            "warnings": analysis.warnings,
+            "recommendations": analysis.recommendations,
         }
 
     def export_conversation(self) -> Dict[str, Any]:
@@ -385,21 +407,21 @@ class ConversationManager:
             Dictionary with full conversation data
         """
         return {
-            'model_name': self.model_name,
-            'messages': self.messages,
-            'turns': [
+            "model_name": self.model_name,
+            "messages": self.messages,
+            "turns": [
                 {
-                    'user_message': turn.user_message,
-                    'assistant_response': turn.assistant_response,
-                    'user_tokens': turn.user_tokens,
-                    'assistant_tokens': turn.assistant_tokens,
-                    'total_tokens': turn.total_tokens,
-                    'cost': turn.cost,
-                    'timestamp': turn.timestamp.isoformat(),
-                    'metadata': turn.metadata,
+                    "user_message": turn.user_message,
+                    "assistant_response": turn.assistant_response,
+                    "user_tokens": turn.user_tokens,
+                    "assistant_tokens": turn.assistant_tokens,
+                    "total_tokens": turn.total_tokens,
+                    "cost": turn.cost,
+                    "timestamp": turn.timestamp.isoformat(),
+                    "metadata": turn.metadata,
                 }
                 for turn in self.turns
             ],
-            'stats': self.get_stats().__dict__,
-            'fixed_overhead': self.fixed_overhead,
+            "stats": self.get_stats().__dict__,
+            "fixed_overhead": self.fixed_overhead,
         }

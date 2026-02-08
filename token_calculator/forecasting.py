@@ -306,9 +306,7 @@ class CostForecaster:
 
         # Calculate delta
         cost_delta = projected_monthly - current_monthly
-        cost_delta_pct = (
-            (cost_delta / current_monthly * 100) if current_monthly > 0 else 0
-        )
+        cost_delta_pct = (cost_delta / current_monthly * 100) if current_monthly > 0 else 0
 
         # Get breakdown by agent
         breakdown_data = self.storage.aggregate(
@@ -362,6 +360,7 @@ class BudgetTracker:
             Uses threading.Lock to protect budget dictionary from race conditions.
         """
         from threading import Lock
+
         from .logging_config import get_logger
 
         self.storage = storage
@@ -426,8 +425,7 @@ class BudgetTracker:
             }
 
         self.logger.info(
-            "Budget set",
-            extra={"budget_name": name, "amount": amount, "period": period}
+            "Budget set", extra={"budget_name": name, "amount": amount, "period": period}
         )
 
     def get_status(self, name: str = "default") -> BudgetStatus:

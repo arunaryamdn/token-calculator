@@ -101,8 +101,8 @@ class AlertManager:
             Webhook URLs are validated to prevent SSRF attacks.
             Only HTTPS URLs to external hosts are allowed by default.
         """
-        from .validation import validate_webhook_url
         from .logging_config import get_logger
+        from .validation import validate_webhook_url
 
         self.rules: List[AlertRule] = []
         self.alert_history: List[Alert] = []
@@ -113,15 +113,12 @@ class AlertManager:
         if webhook_url:
             try:
                 self.webhook_url: Optional[str] = validate_webhook_url(webhook_url)
-                self.logger.info(
-                    "Webhook URL validated",
-                    extra={"url": webhook_url}
-                )
+                self.logger.info("Webhook URL validated", extra={"url": webhook_url})
             except Exception as e:
                 self.logger.error(
                     "Invalid webhook URL",
                     extra={"url": webhook_url, "error": str(e)},
-                    exc_info=True
+                    exc_info=True,
                 )
                 raise
         else:
@@ -199,7 +196,7 @@ class AlertManager:
                 self.logger.error(
                     "Error checking alert rule",
                     extra={"rule": rule.name, "error": str(e)},
-                    exc_info=True
+                    exc_info=True,
                 )
 
         return triggered
@@ -281,9 +278,7 @@ class AlertManager:
         self.add_rule(
             AlertRule(
                 name="context-overflow-warning",
-                condition=lambda e: (
-                    e.input_tokens + e.output_tokens > threshold
-                ),
+                condition=lambda e: (e.input_tokens + e.output_tokens > threshold),
                 severity="warning",
                 message_template=(
                     "Context approaching limit: {input_tokens} + {output_tokens} tokens"
@@ -312,10 +307,7 @@ class AlertManager:
         """
         cutoff = datetime.now() - timedelta(hours=hours)
 
-        filtered = [
-            a for a in self.alert_history
-            if a.timestamp > cutoff
-        ]
+        filtered = [a for a in self.alert_history if a.timestamp > cutoff]
 
         if severity:
             filtered = [a for a in filtered if a.severity == severity]
@@ -362,8 +354,9 @@ class AlertManager:
 
         try:
             import urllib.request
-            from .validation import validate_webhook_url
+
             from .constants import MAX_WEBHOOK_TIMEOUT
+            from .validation import validate_webhook_url
 
             # Re-validate URL (defense in depth)
             safe_url = validate_webhook_url(self.webhook_url)
@@ -385,19 +378,12 @@ class AlertManager:
             with urllib.request.urlopen(req, timeout=MAX_WEBHOOK_TIMEOUT) as response:
                 self.logger.info(
                     "Webhook sent successfully",
-                    extra={
-                        "rule": alert.rule_name,
-                        "status": response.status
-                    }
+                    extra={"rule": alert.rule_name, "status": response.status},
                 )
 
         except Exception as e:
             self.logger.error(
                 "Failed to send webhook",
-                extra={
-                    "rule": alert.rule_name,
-                    "error": str(e),
-                    "url": self.webhook_url
-                },
-                exc_info=True
+                extra={"rule": alert.rule_name, "error": str(e), "url": self.webhook_url},
+                exc_info=True,
             )

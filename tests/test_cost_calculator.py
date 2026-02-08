@@ -3,6 +3,7 @@ Tests for cost calculator module.
 """
 
 import pytest
+
 from token_calculator.cost_calculator import (
     CostCalculator,
     calculate_cost,

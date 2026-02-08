@@ -77,9 +77,7 @@ class WorkflowAnalysis:
 
         if self.bottleneck_agent:
             bottleneck_cost = self.cost_breakdown.get(self.bottleneck_agent, 0)
-            lines.append(
-                f"  Bottleneck: {self.bottleneck_agent} (${bottleneck_cost:.4f})"
-            )
+            lines.append(f"  Bottleneck: {self.bottleneck_agent} (${bottleneck_cost:.4f})")
 
         lines.append(f"  Efficiency: {self.efficiency_score:.0f}/100")
 
@@ -291,9 +289,7 @@ class WorkflowTracker:
         total_output = sum(a.output_tokens for a in self.agent_executions)
 
         # Calculate duration
-        end_time = max(
-            a.end_time for a in self.agent_executions if a.end_time is not None
-        )
+        end_time = max(a.end_time for a in self.agent_executions if a.end_time is not None)
         duration = (end_time - self.start_time).total_seconds()
 
         # Build breakdowns
@@ -301,9 +297,7 @@ class WorkflowTracker:
         cost_breakdown = {}
 
         for agent in self.agent_executions:
-            token_breakdown[agent.agent_id] = (
-                agent.input_tokens + agent.output_tokens
-            )
+            token_breakdown[agent.agent_id] = agent.input_tokens + agent.output_tokens
             cost_breakdown[agent.agent_id] = agent.cost
 
         # Identify bottleneck (highest cost)
@@ -395,9 +389,7 @@ class WorkflowTracker:
             token_counts = [a.input_tokens for a in analysis.agents]
             avg_tokens = sum(token_counts) / len(token_counts)
 
-            high_token_agents = [
-                a for a in analysis.agents if a.input_tokens > avg_tokens * 1.5
-            ]
+            high_token_agents = [a for a in analysis.agents if a.input_tokens > avg_tokens * 1.5]
 
             if len(high_token_agents) > 1:
                 # Estimate overlap savings
@@ -449,12 +441,8 @@ class WorkflowTracker:
 
             # Create box for agent
             lines.append("┌─────────────────────────────────────────┐")
-            lines.append(
-                f"│ {agent.agent_id:<20} ({agent.model:<15}) │"[:43] + "│"
-            )
-            lines.append(
-                f"│ Cost: ${agent.cost:.4f} | Tokens: {total_tokens:<10} │"[:43] + "│"
-            )
+            lines.append(f"│ {agent.agent_id:<20} ({agent.model:<15}) │"[:43] + "│")
+            lines.append(f"│ Cost: ${agent.cost:.4f} | Tokens: {total_tokens:<10} │"[:43] + "│")
             lines.append("└─────────────────────────────────────────┘")
             lines.append("             ↓")
 
@@ -483,17 +471,13 @@ class WorkflowTracker:
         # Entropy-based measure of balance
         import math
 
-        entropy = -sum(
-            p * math.log(p) if p > 0 else 0 for p in cost_distribution
-        )
+        entropy = -sum(p * math.log(p) if p > 0 else 0 for p in cost_distribution)
         max_entropy = math.log(len(self.agent_executions))
         balance_score = entropy / max_entropy if max_entropy > 0 else 0
 
         # Factor 2: Token efficiency (lower tokens = better for same task)
         # This is a simplified heuristic
-        total_tokens = sum(
-            a.input_tokens + a.output_tokens for a in self.agent_executions
-        )
+        total_tokens = sum(a.input_tokens + a.output_tokens for a in self.agent_executions)
         # Assume baseline of 10k tokens for a multi-agent workflow
         token_score = max(0, 100 - (total_tokens / 100))
 
@@ -527,9 +511,7 @@ class WorkflowTracker:
 
         # Check for potential parallelization
         if len(self.agent_executions) > 1:
-            recommendations.append(
-                "Review if any agents can run in parallel to reduce latency."
-            )
+            recommendations.append("Review if any agents can run in parallel to reduce latency.")
 
         return recommendations if recommendations else ["Workflow looks efficient!"]
 
@@ -581,9 +563,7 @@ class AgentContext:
         """
         call_model = model or self.model
         if not call_model:
-            raise ValueError(
-                "Model must be specified either in track_agent() or track_call()"
-            )
+            raise ValueError("Model must be specified either in track_agent() or track_call()")
 
         self.cost_tracker.track_call(
             model=call_model,

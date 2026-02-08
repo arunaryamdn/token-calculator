@@ -10,11 +10,10 @@ This module provides validation functions to prevent security vulnerabilities:
 All validation functions raise descriptive exceptions on invalid input.
 """
 
-import re
 import ipaddress
+import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
-
 
 # ============================================================================
 # Custom Exceptions
@@ -82,9 +81,7 @@ def validate_sql_identifier(name: str, max_length: int = 256) -> str:
 
     # Check length
     if len(name) > max_length:
-        raise ValidationError(
-            f"Identifier too long: {len(name)} chars (maximum: {max_length})"
-        )
+        raise ValidationError(f"Identifier too long: {len(name)} chars (maximum: {max_length})")
 
     # Only allow alphanumeric, underscore, and hyphen
     # This prevents SQL injection via special characters like quotes, semicolons, etc.
@@ -199,9 +196,7 @@ def _is_internal_ip(hostname: str) -> bool:
         return False
 
 
-def validate_webhook_url(
-    url: str, allowed_schemes: Optional[List[str]] = None
-) -> str:
+def validate_webhook_url(url: str, allowed_schemes: Optional[List[str]] = None) -> str:
     """Validate webhook URL to prevent SSRF attacks.
 
     Args:
@@ -316,9 +311,7 @@ def validate_message_structure(messages: List[Dict[str, Any]]) -> List[Dict[str,
 
     for i, msg in enumerate(messages):
         if not isinstance(msg, dict):
-            raise ValidationError(
-                f"Message at index {i} must be dict, got {type(msg).__name__}"
-            )
+            raise ValidationError(f"Message at index {i} must be dict, got {type(msg).__name__}")
 
         # Check for required fields
         if "role" not in msg:
@@ -442,9 +435,7 @@ def validate_token_counts(
         raise ValidationError(f"output_tokens cannot be negative: {output_tokens}")
 
     if input_tokens > max_tokens:
-        raise ValidationError(
-            f"input_tokens too large: {input_tokens:,} (maximum: {max_tokens:,})"
-        )
+        raise ValidationError(f"input_tokens too large: {input_tokens:,} (maximum: {max_tokens:,})")
 
     if output_tokens > max_tokens:
         raise ValidationError(

@@ -75,9 +75,7 @@ class CostReport:
 
         if self.breakdown:
             lines.append("\n  Breakdown:")
-            for key, cost in sorted(
-                self.breakdown.items(), key=lambda x: x[1], reverse=True
-            ):
+            for key, cost in sorted(self.breakdown.items(), key=lambda x: x[1], reverse=True):
                 key_str = " | ".join(str(k) for k in key)
                 lines.append(f"    {key_str}: ${cost:.4f}")
 
@@ -387,9 +385,7 @@ class CostTracker:
 
         # Calculate baseline averages (cost per hour)
         baseline_hours = (current_start - baseline_start).total_seconds() / 3600
-        baseline_avg = {
-            key: cost / baseline_hours for key, cost in baseline_costs.items()
-        }
+        baseline_avg = {key: cost / baseline_hours for key, cost in baseline_costs.items()}
 
         # Detect anomalies
         anomalies = []
@@ -484,9 +480,7 @@ class CostTracker:
             start_time=start_time,
         )
 
-        for (agent_id,), cost in sorted(
-            agent_costs.items(), key=lambda x: x[1], reverse=True
-        )[:3]:
+        for (agent_id,), cost in sorted(agent_costs.items(), key=lambda x: x[1], reverse=True)[:3]:
             monthly_cost = (cost / lookback_days) * 30
             if monthly_cost > 50:  # Only recommend if significant cost
                 # Estimate 10-20% savings from caching

@@ -3,8 +3,8 @@ Context window analysis and management utilities.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from .models import get_model_config
 from .tokenizer import TokenCounter
@@ -12,6 +12,7 @@ from .tokenizer import TokenCounter
 
 class ContextStatus(Enum):
     """Status of context window usage."""
+
     SAFE = "safe"  # < 70% usage
     WARNING = "warning"  # 70-90% usage
     CRITICAL = "critical"  # 90-100% usage
@@ -21,6 +22,7 @@ class ContextStatus(Enum):
 @dataclass
 class ContextBreakdown:
     """Breakdown of context window usage."""
+
     total_tokens: int
     context_window: int
     max_output_tokens: int
@@ -75,7 +77,7 @@ class ContextAnalyzer:
             function_tokens = self.token_counter.count_function_definitions(functions)
 
         # Total input tokens
-        total_input_tokens = token_breakdown['total'] + function_tokens
+        total_input_tokens = token_breakdown["total"] + function_tokens
 
         # Expected output tokens
         if expected_output_tokens is None:
@@ -97,23 +99,21 @@ class ContextAnalyzer:
             total_tokens,
             available_for_output,
             expected_output_tokens,
-            token_breakdown
+            token_breakdown,
         )
 
         recommendations = self._generate_recommendations(
-            total_input_tokens,
-            token_breakdown,
-            available_for_output
+            total_input_tokens, token_breakdown, available_for_output
         )
 
         # Create input breakdown
         input_breakdown = {
-            'system_messages': token_breakdown.get('system', 0),
-            'user_messages': token_breakdown.get('user', 0),
-            'assistant_messages': token_breakdown.get('assistant', 0),
-            'function_calls': token_breakdown.get('functions', 0),
-            'function_definitions': function_tokens,
-            'formatting_overhead': token_breakdown.get('overhead', 0),
+            "system_messages": token_breakdown.get("system", 0),
+            "user_messages": token_breakdown.get("user", 0),
+            "assistant_messages": token_breakdown.get("assistant", 0),
+            "function_calls": token_breakdown.get("functions", 0),
+            "function_definitions": function_tokens,
+            "formatting_overhead": token_breakdown.get("overhead", 0),
         }
 
         return ContextBreakdown(
@@ -146,7 +146,7 @@ class ContextAnalyzer:
         total_tokens: int,
         available_for_output: int,
         expected_output_tokens: int,
-        token_breakdown: Dict[str, int]
+        token_breakdown: Dict[str, int],
     ) -> List[str]:
         """Generate warnings based on context usage."""
         warnings = []
@@ -181,7 +181,7 @@ class ContextAnalyzer:
             )
 
         # Large assistant messages (potential context rot)
-        if token_breakdown.get('assistant', 0) > self.model_config.context_window * 0.3:
+        if token_breakdown.get("assistant", 0) > self.model_config.context_window * 0.3:
             warnings.append(
                 "⚠️ Assistant messages consume >30% of context. "
                 "This may indicate context rot in long conversations."
@@ -190,16 +190,13 @@ class ContextAnalyzer:
         return warnings
 
     def _generate_recommendations(
-        self,
-        total_input_tokens: int,
-        token_breakdown: Dict[str, int],
-        available_for_output: int
+        self, total_input_tokens: int, token_breakdown: Dict[str, int], available_for_output: int
     ) -> List[str]:
         """Generate optimization recommendations."""
         recommendations = []
 
         # High system message usage
-        system_tokens = token_breakdown.get('system', 0)
+        system_tokens = token_breakdown.get("system", 0)
         if system_tokens > 2000:
             recommendations.append(
                 f"💡 System message uses {system_tokens} tokens. "
@@ -207,7 +204,7 @@ class ContextAnalyzer:
             )
 
         # Many user messages (conversation history)
-        user_tokens = token_breakdown.get('user', 0)
+        user_tokens = token_breakdown.get("user", 0)
         if user_tokens > self.model_config.context_window * 0.4:
             recommendations.append(
                 f"💡 User messages use {user_tokens} tokens ({user_tokens / self.model_config.context_window * 100:.1f}%). "
@@ -215,7 +212,7 @@ class ContextAnalyzer:
             )
 
         # Function overhead
-        func_tokens = token_breakdown.get('functions', 0)
+        func_tokens = token_breakdown.get("functions", 0)
         if func_tokens > 1000:
             recommendations.append(
                 f"💡 Function calls/definitions use {func_tokens} tokens. "
@@ -273,20 +270,20 @@ class ContextAnalyzer:
         critical_threshold = int(max_turns * 0.9)
 
         return {
-            'max_turns': max_turns,
-            'tokens_per_turn': tokens_per_turn,
-            'fixed_overhead': fixed_overhead,
-            'available_for_conversation': available_for_conversation,
-            'warning_at_turn': warning_threshold,
-            'critical_at_turn': critical_threshold,
-            'breakdown': {
-                'system': system_tokens,
-                'rag': rag_tokens,
-                'functions': function_tokens,
-                'per_user_message': avg_user_tokens,
-                'per_assistant_message': avg_assistant_tokens,
-                'formatting_per_turn': 8,
-            }
+            "max_turns": max_turns,
+            "tokens_per_turn": tokens_per_turn,
+            "fixed_overhead": fixed_overhead,
+            "available_for_conversation": available_for_conversation,
+            "warning_at_turn": warning_threshold,
+            "critical_at_turn": critical_threshold,
+            "breakdown": {
+                "system": system_tokens,
+                "rag": rag_tokens,
+                "functions": function_tokens,
+                "per_user_message": avg_user_tokens,
+                "per_assistant_message": avg_assistant_tokens,
+                "formatting_per_turn": 8,
+            },
         }
 
     def find_optimal_context_split(
@@ -306,19 +303,19 @@ class ContextAnalyzer:
         """
         if len(messages) <= keep_recent:
             return {
-                'needs_split': False,
-                'total_messages': len(messages),
-                'kept_messages': len(messages),
+                "needs_split": False,
+                "total_messages": len(messages),
+                "kept_messages": len(messages),
             }
 
         # Count tokens for each message
         message_tokens = []
         for msg in messages:
-            tokens = self.token_counter.count_tokens(str(msg.get('content', '')))
+            tokens = self.token_counter.count_tokens(str(msg.get("content", "")))
             message_tokens.append(tokens)
 
         # Always keep system message (if present) and recent messages
-        system_messages = [i for i, msg in enumerate(messages) if msg.get('role') == 'system']
+        system_messages = [i for i, msg in enumerate(messages) if msg.get("role") == "system"]
         recent_indices = list(range(len(messages) - keep_recent, len(messages)))
 
         # Combine indices to keep
@@ -341,12 +338,13 @@ class ContextAnalyzer:
         final_kept_indices = sorted(list(keep_indices) + additional_messages)
 
         return {
-            'needs_split': len(final_kept_indices) < len(messages),
-            'total_messages': len(messages),
-            'kept_messages': len(final_kept_indices),
-            'removed_messages': len(messages) - len(final_kept_indices),
-            'kept_indices': final_kept_indices,
-            'total_tokens_before': sum(message_tokens),
-            'total_tokens_after': sum(message_tokens[i] for i in final_kept_indices),
-            'tokens_saved': sum(message_tokens) - sum(message_tokens[i] for i in final_kept_indices),
+            "needs_split": len(final_kept_indices) < len(messages),
+            "total_messages": len(messages),
+            "kept_messages": len(final_kept_indices),
+            "removed_messages": len(messages) - len(final_kept_indices),
+            "kept_indices": final_kept_indices,
+            "total_tokens_before": sum(message_tokens),
+            "total_tokens_after": sum(message_tokens[i] for i in final_kept_indices),
+            "tokens_saved": sum(message_tokens)
+            - sum(message_tokens[i] for i in final_kept_indices),
         }

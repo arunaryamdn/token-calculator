@@ -135,8 +135,8 @@ def example_4_compare_phrasings():
         print(f"   Tokens/char ratio: {comp['tokens_per_char']:.3f}\n")
 
     # Calculate savings
-    most_tokens = comparisons[-1]['tokens']
-    least_tokens = comparisons[0]['tokens']
+    most_tokens = comparisons[-1]["tokens"]
+    least_tokens = comparisons[0]["tokens"]
     savings = most_tokens - least_tokens
     savings_pct = (savings / most_tokens) * 100
 

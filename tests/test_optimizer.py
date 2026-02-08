@@ -3,6 +3,7 @@ Tests for optimizer module.
 """
 
 import pytest
+
 from token_calculator.optimizer import (
     TokenOptimizer,
     optimize_prompt,

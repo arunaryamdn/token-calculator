@@ -2,16 +2,17 @@
 Token counting utilities for various LLM models.
 """
 
-from typing import Union, List, Dict, Any, Optional
 import re
+from typing import Any, Dict, List, Optional, Union
 
 try:
     import tiktoken
+
     TIKTOKEN_AVAILABLE = True
 except ImportError:
     TIKTOKEN_AVAILABLE = False
 
-from .models import get_model_config, ModelProvider
+from .models import ModelProvider, get_model_config
 
 
 class TokenCounter:
@@ -84,7 +85,7 @@ class TokenCounter:
         - With whitespace consideration
         """
         # Split on whitespace and punctuation
-        words = re.findall(r'\w+|[^\w\s]', text)
+        words = re.findall(r"\w+|[^\w\s]", text)
 
         # Approximate: most words are 1-2 tokens
         token_count = 0
@@ -98,9 +99,7 @@ class TokenCounter:
         return token_count
 
     def count_messages(
-        self,
-        messages: List[Dict[str, Any]],
-        include_function_tokens: bool = True
+        self, messages: List[Dict[str, Any]], include_function_tokens: bool = True
     ) -> Dict[str, int]:
         """
         Count tokens in a list of chat messages.
@@ -120,13 +119,13 @@ class TokenCounter:
             - overhead: Tokens used for message formatting
         """
         breakdown = {
-            'total': 0,
-            'messages': 0,
-            'system': 0,
-            'user': 0,
-            'assistant': 0,
-            'functions': 0,
-            'overhead': 0,
+            "total": 0,
+            "messages": 0,
+            "system": 0,
+            "user": 0,
+            "assistant": 0,
+            "functions": 0,
+            "overhead": 0,
         }
 
         # Message formatting overhead (varies by model)
@@ -135,8 +134,8 @@ class TokenCounter:
         overhead_per_message = 4 if self.model_config.provider == ModelProvider.OPENAI else 2
 
         for message in messages:
-            role = message.get('role', '')
-            content = message.get('content', '')
+            role = message.get("role", "")
+            content = message.get("content", "")
 
             # Count content tokens
             if content:
@@ -147,9 +146,9 @@ class TokenCounter:
                     token_count = 0
                     for item in content:
                         if isinstance(item, dict):
-                            if item.get('type') == 'text':
-                                token_count += self.count_tokens(item.get('text', ''))
-                            elif item.get('type') == 'image_url':
+                            if item.get("type") == "text":
+                                token_count += self.count_tokens(item.get("text", ""))
+                            elif item.get("type") == "image_url":
                                 # Images typically cost a fixed number of tokens
                                 # This varies by model and image size
                                 token_count += 765  # Approximate for GPT-4V
@@ -158,7 +157,7 @@ class TokenCounter:
                 else:
                     token_count = self.count_tokens(str(content))
 
-                breakdown['messages'] += token_count
+                breakdown["messages"] += token_count
 
                 # Add to role-specific count
                 if role in breakdown:
@@ -166,20 +165,20 @@ class TokenCounter:
 
             # Count function/tool tokens
             if include_function_tokens:
-                if 'function_call' in message:
-                    func_tokens = self.count_tokens(str(message['function_call']))
-                    breakdown['functions'] += func_tokens
-                    breakdown['messages'] += func_tokens
+                if "function_call" in message:
+                    func_tokens = self.count_tokens(str(message["function_call"]))
+                    breakdown["functions"] += func_tokens
+                    breakdown["messages"] += func_tokens
 
-                if 'tool_calls' in message:
-                    tool_tokens = self.count_tokens(str(message['tool_calls']))
-                    breakdown['functions'] += tool_tokens
-                    breakdown['messages'] += tool_tokens
+                if "tool_calls" in message:
+                    tool_tokens = self.count_tokens(str(message["tool_calls"]))
+                    breakdown["functions"] += tool_tokens
+                    breakdown["messages"] += tool_tokens
 
             # Add overhead
-            breakdown['overhead'] += overhead_per_message
+            breakdown["overhead"] += overhead_per_message
 
-        breakdown['total'] = breakdown['messages'] + breakdown['overhead']
+        breakdown["total"] = breakdown["messages"] + breakdown["overhead"]
         return breakdown
 
     def count_function_definitions(self, functions: List[Dict[str, Any]]) -> int:
@@ -220,9 +219,9 @@ def count_tokens(text: str, model_name: str) -> int:
         - Validates text size to prevent DoS attacks
         - Validates model name exists before processing
     """
-    from .validation import validate_text_size, validate_model_name
     from .constants import MAX_TEXT_LENGTH
     from .models import get_model_config
+    from .validation import validate_model_name, validate_text_size
 
     # Type validation
     if not isinstance(text, str):
@@ -241,9 +240,7 @@ def count_tokens(text: str, model_name: str) -> int:
 
 
 def count_messages(
-    messages: List[Dict[str, Any]],
-    model_name: str,
-    include_function_tokens: bool = True
+    messages: List[Dict[str, Any]], model_name: str, include_function_tokens: bool = True
 ) -> Dict[str, int]:
     """
     Convenience function to count tokens in messages.
@@ -265,8 +262,8 @@ def count_messages(
         - Validates message structure to prevent errors
         - Validates model name exists before processing
     """
-    from .validation import validate_message_structure, validate_model_name
     from .models import get_model_config
+    from .validation import validate_message_structure, validate_model_name
 
     # Type validation
     if not isinstance(messages, list):

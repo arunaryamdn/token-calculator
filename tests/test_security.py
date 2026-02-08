@@ -9,23 +9,23 @@ Tests for:
 - Defense in depth
 """
 
-import pytest
 import threading
 import time
 from datetime import datetime
 
+import pytest
+
 from token_calculator import (
-    SQLiteStorage,
-    InMemoryStorage,
-    TrackingEvent,
     AlertManager,
     BudgetTracker,
-    ValidationError,
+    InMemoryStorage,
     SecurityError,
-    count_tokens,
+    SQLiteStorage,
+    TrackingEvent,
+    ValidationError,
     count_messages,
+    count_tokens,
 )
-
 
 # ============================================================================
 # SQL Injection Prevention Tests
@@ -56,9 +56,7 @@ class TestSQLInjectionPrevention:
         assert len(results) == 1
         assert results[0].labels["agent_id"] == "test-agent"
 
-    def test_sql_injection_in_filter_keys_blocked(
-        self, sqlite_storage, sql_injection_payloads
-    ):
+    def test_sql_injection_in_filter_keys_blocked(self, sqlite_storage, sql_injection_payloads):
         """SQL injection attempts in filter keys should be blocked."""
         for payload in sql_injection_payloads:
             with pytest.raises(ValidationError, match="Invalid identifier"):
@@ -78,9 +76,7 @@ class TestSQLInjectionPrevention:
 
         # Attempt injection
         try:
-            sqlite_storage.query_events(
-                filters={"test_id'; DROP TABLE events; --": "value"}
-            )
+            sqlite_storage.query_events(filters={"test_id'; DROP TABLE events; --": "value"})
         except ValidationError:
             pass
 
@@ -90,16 +86,12 @@ class TestSQLInjectionPrevention:
 
     def test_valid_group_by_accepted(self, populated_storage):
         """Valid group_by dimensions should be accepted."""
-        results = populated_storage.aggregate(
-            metric="cost", group_by=["agent_id"]
-        )
+        results = populated_storage.aggregate(metric="cost", group_by=["agent_id"])
 
         assert len(results) > 0
         assert all(isinstance(k, tuple) for k in results.keys())
 
-    def test_sql_injection_in_group_by_blocked(
-        self, sqlite_storage, sql_injection_payloads
-    ):
+    def test_sql_injection_in_group_by_blocked(self, sqlite_storage, sql_injection_payloads):
         """SQL injection attempts in group_by should be blocked."""
         for payload in sql_injection_payloads:
             with pytest.raises(ValidationError, match="Invalid identifier"):
@@ -134,9 +126,7 @@ class TestSQLInjectionPrevention:
                 **{identifier: "test"},
             )
             sqlite_storage.save_event(event)
-            results = sqlite_storage.query_events(
-                filters={identifier: "test"}
-            )
+            results = sqlite_storage.query_events(filters={identifier: "test"})
             assert len(results) == 1
 
     def test_invalid_characters_in_identifiers(self, sqlite_storage):

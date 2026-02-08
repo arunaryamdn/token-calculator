@@ -3,8 +3,8 @@ Cost calculation utilities for LLM token usage.
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 from .models import get_model_config
 from .tokenizer import TokenCounter
@@ -13,6 +13,7 @@ from .tokenizer import TokenCounter
 @dataclass
 class CostBreakdown:
     """Breakdown of LLM usage costs."""
+
     input_tokens: int
     output_tokens: int
     input_cost: float
@@ -68,9 +69,9 @@ class CostCalculator:
             model_name=self.model_name,
             timestamp=datetime.now(),
             details={
-                'cost_per_1k_input': self.model_config.cost_per_1k_input,
-                'cost_per_1k_output': self.model_config.cost_per_1k_output,
-            }
+                "cost_per_1k_input": self.model_config.cost_per_1k_input,
+                "cost_per_1k_output": self.model_config.cost_per_1k_output,
+            },
         )
 
     def calculate_message_cost(
@@ -92,7 +93,7 @@ class CostCalculator:
         """
         # Count input tokens
         token_breakdown = self.token_counter.count_messages(messages, include_function_tokens=True)
-        input_tokens = token_breakdown['total']
+        input_tokens = token_breakdown["total"]
 
         # Add function definition tokens
         if functions:
@@ -128,21 +129,21 @@ class CostCalculator:
         yearly_cost = daily_cost * 365
 
         return {
-            'cost_per_request': cost_per_request.total_cost,
-            'daily_cost': daily_cost,
-            'weekly_cost': weekly_cost,
-            'monthly_cost': monthly_cost,
-            'yearly_cost': yearly_cost,
-            'daily_requests': requests_per_day,
-            'monthly_requests': requests_per_day * 30,
-            'yearly_requests': requests_per_day * 365,
-            'breakdown': {
-                'input_tokens_per_request': avg_input_tokens,
-                'output_tokens_per_request': avg_output_tokens,
-                'input_cost_per_request': cost_per_request.input_cost,
-                'output_cost_per_request': cost_per_request.output_cost,
+            "cost_per_request": cost_per_request.total_cost,
+            "daily_cost": daily_cost,
+            "weekly_cost": weekly_cost,
+            "monthly_cost": monthly_cost,
+            "yearly_cost": yearly_cost,
+            "daily_requests": requests_per_day,
+            "monthly_requests": requests_per_day * 30,
+            "yearly_requests": requests_per_day * 365,
+            "breakdown": {
+                "input_tokens_per_request": avg_input_tokens,
+                "output_tokens_per_request": avg_output_tokens,
+                "input_cost_per_request": cost_per_request.input_cost,
+                "output_cost_per_request": cost_per_request.output_cost,
             },
-            'warnings': self._generate_cost_warnings(monthly_cost, yearly_cost),
+            "warnings": self._generate_cost_warnings(monthly_cost, yearly_cost),
         }
 
     def _generate_cost_warnings(self, monthly_cost: float, yearly_cost: float) -> List[str]:
@@ -194,22 +195,24 @@ class CostCalculator:
 
                 model_config = get_model_config(model_name)
 
-                comparisons.append({
-                    'model': model_name,
-                    'provider': model_config.provider.value,
-                    'total_cost': cost.total_cost,
-                    'input_cost': cost.input_cost,
-                    'output_cost': cost.output_cost,
-                    'context_window': model_config.context_window,
-                    'supports_functions': model_config.supports_function_calling,
-                    'supports_vision': model_config.supports_vision,
-                })
+                comparisons.append(
+                    {
+                        "model": model_name,
+                        "provider": model_config.provider.value,
+                        "total_cost": cost.total_cost,
+                        "input_cost": cost.input_cost,
+                        "output_cost": cost.output_cost,
+                        "context_window": model_config.context_window,
+                        "supports_functions": model_config.supports_function_calling,
+                        "supports_vision": model_config.supports_vision,
+                    }
+                )
             except Exception:
                 # Skip models that fail
                 continue
 
         # Sort by total cost
-        comparisons.sort(key=lambda x: x['total_cost'])
+        comparisons.sort(key=lambda x: x["total_cost"])
 
         return comparisons
 
@@ -233,8 +236,8 @@ class CostCalculator:
         request_costs = []
 
         for req in batch_requests:
-            input_tokens = req.get('input_tokens', 0)
-            output_tokens = req.get('output_tokens', 0)
+            input_tokens = req.get("input_tokens", 0)
+            output_tokens = req.get("output_tokens", 0)
 
             cost = self.calculate_cost(input_tokens, output_tokens)
 
@@ -242,19 +245,21 @@ class CostCalculator:
             total_output_tokens += output_tokens
             total_cost += cost.total_cost
 
-            request_costs.append({
-                'input_tokens': input_tokens,
-                'output_tokens': output_tokens,
-                'cost': cost.total_cost,
-            })
+            request_costs.append(
+                {
+                    "input_tokens": input_tokens,
+                    "output_tokens": output_tokens,
+                    "cost": cost.total_cost,
+                }
+            )
 
         return {
-            'total_requests': len(batch_requests),
-            'total_input_tokens': total_input_tokens,
-            'total_output_tokens': total_output_tokens,
-            'total_cost': total_cost,
-            'average_cost_per_request': total_cost / len(batch_requests) if batch_requests else 0,
-            'request_costs': request_costs,
+            "total_requests": len(batch_requests),
+            "total_input_tokens": total_input_tokens,
+            "total_output_tokens": total_output_tokens,
+            "total_cost": total_cost,
+            "average_cost_per_request": total_cost / len(batch_requests) if batch_requests else 0,
+            "request_costs": request_costs,
         }
 
     def estimate_cost_savings(
@@ -293,14 +298,14 @@ class CostCalculator:
         yearly_savings = monthly_savings * 12
 
         return {
-            'tokens_saved_per_request': tokens_saved,
-            'reduction_percentage': reduction_percentage,
-            'current_cost_per_request': current_cost_per_request,
-            'optimized_cost_per_request': optimized_cost_per_request,
-            'savings_per_request': savings_per_request,
-            'monthly_savings': monthly_savings,
-            'yearly_savings': yearly_savings,
-            'monthly_requests': requests_per_month,
+            "tokens_saved_per_request": tokens_saved,
+            "reduction_percentage": reduction_percentage,
+            "current_cost_per_request": current_cost_per_request,
+            "optimized_cost_per_request": optimized_cost_per_request,
+            "savings_per_request": savings_per_request,
+            "monthly_savings": monthly_savings,
+            "yearly_savings": yearly_savings,
+            "monthly_requests": requests_per_month,
         }
 
 
@@ -342,6 +347,7 @@ def compare_model_costs(
     """
     # Use any model for the comparison function
     from .models import MODEL_DATABASE
+
     first_model = list(MODEL_DATABASE.keys())[0]
     calculator = CostCalculator(first_model)
     return calculator.compare_models(input_tokens, output_tokens, model_names)

@@ -2,17 +2,18 @@
 Token optimization utilities and strategies.
 """
 
-from typing import List, Dict, Any, Optional, Callable
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Optional
 
-from .tokenizer import TokenCounter
 from .models import get_model_config
+from .tokenizer import TokenCounter
 
 
 @dataclass
 class OptimizationSuggestion:
     """A single optimization suggestion."""
+
     strategy: str
     description: str
     estimated_tokens_saved: int
@@ -24,6 +25,7 @@ class OptimizationSuggestion:
 @dataclass
 class OptimizationResult:
     """Result of an optimization operation."""
+
     original_tokens: int
     optimized_tokens: int
     tokens_saved: int
@@ -90,12 +92,12 @@ class TokenOptimizer:
     def _check_whitespace(self, text: str) -> Optional[OptimizationSuggestion]:
         """Check for excessive whitespace."""
         # Count excessive newlines (more than 2 consecutive)
-        excessive_newlines = len(re.findall(r'\n{3,}', text))
+        excessive_newlines = len(re.findall(r"\n{3,}", text))
 
         if excessive_newlines > 0:
             original = self.token_counter.count_tokens(text)
-            cleaned = re.sub(r'\n{3,}', '\n\n', text)
-            cleaned = re.sub(r' {2,}', ' ', cleaned)
+            cleaned = re.sub(r"\n{3,}", "\n\n", text)
+            cleaned = re.sub(r" {2,}", " ", cleaned)
             optimized = self.token_counter.count_tokens(cleaned)
 
             if original - optimized > 5:
@@ -105,20 +107,22 @@ class TokenOptimizer:
                     estimated_tokens_saved=original - optimized,
                     impact="low",
                     effort="easy",
-                    example="Replace multiple newlines with double newlines, multiple spaces with single spaces"
+                    example="Replace multiple newlines with double newlines, multiple spaces with single spaces",
                 )
         return None
 
     def _check_repetition(self, text: str) -> Optional[OptimizationSuggestion]:
         """Check for repetitive content."""
-        sentences = re.split(r'[.!?]+', text)
+        sentences = re.split(r"[.!?]+", text)
         sentences = [s.strip() for s in sentences if s.strip()]
 
         # Check for duplicate sentences
         unique_sentences = set(sentences)
         if len(sentences) - len(unique_sentences) > 2:
             duplicates = len(sentences) - len(unique_sentences)
-            avg_sentence_tokens = self.token_counter.count_tokens(text) / len(sentences) if sentences else 0
+            avg_sentence_tokens = (
+                self.token_counter.count_tokens(text) / len(sentences) if sentences else 0
+            )
             estimated_saved = int(duplicates * avg_sentence_tokens)
 
             return OptimizationSuggestion(
@@ -127,7 +131,7 @@ class TokenOptimizer:
                 estimated_tokens_saved=estimated_saved,
                 impact="medium",
                 effort="moderate",
-                example="Remove or consolidate repeated information"
+                example="Remove or consolidate repeated information",
             )
         return None
 
@@ -137,14 +141,14 @@ class TokenOptimizer:
 
         # Common verbose patterns
         verbose_patterns = {
-            r'\bin order to\b': 'to',
-            r'\bdue to the fact that\b': 'because',
-            r'\bat this point in time\b': 'now',
-            r'\bfor the purpose of\b': 'to',
-            r'\bin the event that\b': 'if',
-            r'\bit is important to note that\b': '',
-            r'\bplease note that\b': '',
-            r'\bas a matter of fact\b': 'actually',
+            r"\bin order to\b": "to",
+            r"\bdue to the fact that\b": "because",
+            r"\bat this point in time\b": "now",
+            r"\bfor the purpose of\b": "to",
+            r"\bin the event that\b": "if",
+            r"\bit is important to note that\b": "",
+            r"\bplease note that\b": "",
+            r"\bas a matter of fact\b": "actually",
         }
 
         total_saved = 0
@@ -153,29 +157,33 @@ class TokenOptimizer:
         for pattern, replacement in verbose_patterns.items():
             matches = re.findall(pattern, text, re.IGNORECASE)
             if matches:
-                verbose_found.append(pattern.replace('\\b', ''))
+                verbose_found.append(pattern.replace("\\b", ""))
                 # Estimate tokens saved
                 for match in matches:
                     original_tokens = self.token_counter.count_tokens(match)
-                    replacement_tokens = self.token_counter.count_tokens(replacement) if replacement else 0
+                    replacement_tokens = (
+                        self.token_counter.count_tokens(replacement) if replacement else 0
+                    )
                     total_saved += original_tokens - replacement_tokens
 
         if verbose_found:
-            suggestions.append(OptimizationSuggestion(
-                strategy="Simplify verbose phrases",
-                description=f"Found {len(verbose_found)} verbose patterns",
-                estimated_tokens_saved=total_saved,
-                impact="low",
-                effort="easy",
-                example=f"Examples: {', '.join(verbose_found[:3])}"
-            ))
+            suggestions.append(
+                OptimizationSuggestion(
+                    strategy="Simplify verbose phrases",
+                    description=f"Found {len(verbose_found)} verbose patterns",
+                    estimated_tokens_saved=total_saved,
+                    impact="low",
+                    effort="easy",
+                    example=f"Examples: {', '.join(verbose_found[:3])}",
+                )
+            )
 
         return suggestions
 
     def _check_long_examples(self, text: str) -> Optional[OptimizationSuggestion]:
         """Check for excessively long examples."""
         # Look for code blocks or long quoted sections
-        code_blocks = re.findall(r'```[\s\S]*?```', text)
+        code_blocks = re.findall(r"```[\s\S]*?```", text)
 
         if code_blocks:
             total_code_tokens = sum(self.token_counter.count_tokens(block) for block in code_blocks)
@@ -189,7 +197,7 @@ class TokenOptimizer:
                     estimated_tokens_saved=int(total_code_tokens * 0.3),  # Estimate 30% reduction
                     impact="high",
                     effort="moderate",
-                    example="Consider using shorter, focused examples or pseudocode"
+                    example="Consider using shorter, focused examples or pseudocode",
                 )
         return None
 
@@ -197,10 +205,10 @@ class TokenOptimizer:
         """Check for formatting overhead."""
         # Count markdown formatting
         markdown_patterns = [
-            r'\*\*[\s\S]*?\*\*',  # Bold
-            r'\*[\s\S]*?\*',  # Italic
-            r'#{1,6} ',  # Headers
-            r'\[.*?\]\(.*?\)',  # Links
+            r"\*\*[\s\S]*?\*\*",  # Bold
+            r"\*[\s\S]*?\*",  # Italic
+            r"#{1,6} ",  # Headers
+            r"\[.*?\]\(.*?\)",  # Links
         ]
 
         formatting_chars = 0
@@ -208,7 +216,7 @@ class TokenOptimizer:
             matches = re.findall(pattern, text)
             for match in matches:
                 # Count formatting characters (e.g., **, *, #, []())
-                formatting_chars += len(match) - len(re.sub(r'[\*#\[\]\(\)]', '', match))
+                formatting_chars += len(match) - len(re.sub(r"[\*#\[\]\(\)]", "", match))
 
         if formatting_chars > 100:
             estimated_saved = formatting_chars // 4  # Rough estimate
@@ -219,7 +227,7 @@ class TokenOptimizer:
                 estimated_tokens_saved=estimated_saved,
                 impact="low",
                 effort="easy",
-                example="Remove unnecessary bold/italic formatting"
+                example="Remove unnecessary bold/italic formatting",
             )
         return None
 
@@ -274,24 +282,24 @@ class TokenOptimizer:
     def _optimize_whitespace(self, text: str) -> str:
         """Optimize whitespace."""
         # Remove excessive newlines
-        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = re.sub(r"\n{3,}", "\n\n", text)
         # Remove excessive spaces
-        text = re.sub(r' {2,}', ' ', text)
+        text = re.sub(r" {2,}", " ", text)
         # Remove trailing whitespace
-        text = '\n'.join(line.rstrip() for line in text.split('\n'))
+        text = "\n".join(line.rstrip() for line in text.split("\n"))
         return text.strip()
 
     def _optimize_verbosity(self, text: str) -> str:
         """Optimize verbose patterns."""
         replacements = {
-            r'\bin order to\b': 'to',
-            r'\bdue to the fact that\b': 'because',
-            r'\bat this point in time\b': 'now',
-            r'\bfor the purpose of\b': 'to',
-            r'\bin the event that\b': 'if',
-            r'\bit is important to note that\b': '',
-            r'\bplease note that\b': '',
-            r'\bas a matter of fact\b': 'actually',
+            r"\bin order to\b": "to",
+            r"\bdue to the fact that\b": "because",
+            r"\bat this point in time\b": "now",
+            r"\bfor the purpose of\b": "to",
+            r"\bin the event that\b": "if",
+            r"\bit is important to note that\b": "",
+            r"\bplease note that\b": "",
+            r"\bas a matter of fact\b": "actually",
         }
 
         for pattern, replacement in replacements.items():
@@ -303,14 +311,19 @@ class TokenOptimizer:
         """Apply aggressive shortening strategies."""
         # Remove filler words
         fillers = [
-            r'\bvery\b', r'\breally\b', r'\bactually\b', r'\bbasically\b',
-            r'\bliterally\b', r'\bjust\b', r'\bsimply\b'
+            r"\bvery\b",
+            r"\breally\b",
+            r"\bactually\b",
+            r"\bbasically\b",
+            r"\bliterally\b",
+            r"\bjust\b",
+            r"\bsimply\b",
         ]
         for filler in fillers:
-            text = re.sub(filler, '', text, flags=re.IGNORECASE)
+            text = re.sub(filler, "", text, flags=re.IGNORECASE)
 
         # Clean up resulting double spaces
-        text = re.sub(r' {2,}', ' ', text)
+        text = re.sub(r" {2,}", " ", text)
 
         return text
 
@@ -336,25 +349,29 @@ class TokenOptimizer:
 
         # Suggest splitting if very long
         if tokens > 2000:
-            suggestions.append(OptimizationSuggestion(
-                strategy="Split prompt",
-                description=f"Prompt is very long ({tokens} tokens)",
-                estimated_tokens_saved=0,
-                impact="high",
-                effort="moderate",
-                example="Consider breaking into multiple focused prompts or using a multi-turn conversation"
-            ))
+            suggestions.append(
+                OptimizationSuggestion(
+                    strategy="Split prompt",
+                    description=f"Prompt is very long ({tokens} tokens)",
+                    estimated_tokens_saved=0,
+                    impact="high",
+                    effort="moderate",
+                    example="Consider breaking into multiple focused prompts or using a multi-turn conversation",
+                )
+            )
 
         # Suggest using system message
         if "you are" in prompt.lower() and len(prompt) > 500:
-            suggestions.append(OptimizationSuggestion(
-                strategy="Use system message",
-                description="Instructions could be moved to system message",
-                estimated_tokens_saved=20,
-                impact="low",
-                effort="easy",
-                example="Move role/behavior instructions to system message for better separation"
-            ))
+            suggestions.append(
+                OptimizationSuggestion(
+                    strategy="Use system message",
+                    description="Instructions could be moved to system message",
+                    estimated_tokens_saved=20,
+                    impact="low",
+                    effort="easy",
+                    example="Move role/behavior instructions to system message for better separation",
+                )
+            )
 
         # Sort by impact (high -> medium -> low)
         impact_order = {"high": 0, "medium": 1, "low": 2}
@@ -379,15 +396,17 @@ class TokenOptimizer:
 
         for phrasing in phrasings:
             tokens = self.token_counter.count_tokens(phrasing)
-            comparisons.append({
-                'text': phrasing,
-                'tokens': tokens,
-                'characters': len(phrasing),
-                'tokens_per_char': tokens / len(phrasing) if len(phrasing) > 0 else 0,
-            })
+            comparisons.append(
+                {
+                    "text": phrasing,
+                    "tokens": tokens,
+                    "characters": len(phrasing),
+                    "tokens_per_char": tokens / len(phrasing) if len(phrasing) > 0 else 0,
+                }
+            )
 
         # Sort by token count
-        comparisons.sort(key=lambda x: x['tokens'])
+        comparisons.sort(key=lambda x: x["tokens"])
 
         return comparisons
 

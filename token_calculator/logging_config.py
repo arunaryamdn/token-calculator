@@ -37,7 +37,9 @@ def get_logger(name: str, level: Optional[str] = None) -> logging.Logger:
         - Use exc_info=True to include exception traceback
     """
     # Create logger with full module path
-    logger = logging.getLogger(f"token_calculator.{name}" if not name.startswith("token_calculator") else name)
+    logger = logging.getLogger(
+        f"token_calculator.{name}" if not name.startswith("token_calculator") else name
+    )
 
     # Set level if specified
     if level:
@@ -96,9 +98,7 @@ def configure_logging(
     if format_string is None:
         if include_extra:
             # Format with support for extra fields
-            format_string = (
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
+            format_string = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         else:
             # Simple format
             format_string = "%(levelname)s - %(name)s - %(message)s"

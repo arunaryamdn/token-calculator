@@ -4,12 +4,13 @@ Contains context windows, pricing, and tokenizer information.
 """
 
 from dataclasses import dataclass
-from typing import Optional, Dict
 from enum import Enum
+from typing import Dict, Optional
 
 
 class ModelProvider(Enum):
     """Supported LLM providers."""
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
@@ -23,6 +24,7 @@ class ModelProvider(Enum):
 @dataclass
 class ModelConfig:
     """Configuration for an LLM model."""
+
     name: str
     provider: ModelProvider
     context_window: int  # Total context window in tokens
@@ -107,7 +109,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         supports_function_calling=True,
         supports_vision=True,
     ),
-
     # OpenAI GPT-3.5 Models
     "gpt-3.5-turbo": ModelConfig(
         name="gpt-3.5-turbo",
@@ -129,7 +130,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         tokenizer_name="cl100k_base",
         supports_function_calling=True,
     ),
-
     # Anthropic Claude Models
     "claude-3-opus-20240229": ModelConfig(
         name="claude-3-opus-20240229",
@@ -197,7 +197,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         supports_function_calling=True,
         supports_vision=True,
     ),
-
     # Google Gemini Models
     "gemini-pro": ModelConfig(
         name="gemini-pro",
@@ -231,7 +230,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         supports_function_calling=True,
         supports_vision=True,
     ),
-
     # Meta Llama Models
     "llama-2-7b": ModelConfig(
         name="llama-2-7b",
@@ -305,7 +303,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         cost_per_1k_output=0.016,
         tokenizer_name="llama",
     ),
-
     # Mistral Models
     "mistral-7b": ModelConfig(
         name="mistral-7b",
@@ -355,7 +352,6 @@ MODEL_DATABASE: Dict[str, ModelConfig] = {
         tokenizer_name="mistral",
         supports_function_calling=True,
     ),
-
     # Cohere Models
     "command": ModelConfig(
         name="command",
@@ -431,10 +427,7 @@ def list_models(provider: Optional[ModelProvider] = None) -> list[str]:
     """
     if provider is None:
         return list(MODEL_DATABASE.keys())
-    return [
-        name for name, config in MODEL_DATABASE.items()
-        if config.provider == provider
-    ]
+    return [name for name, config in MODEL_DATABASE.items() if config.provider == provider]
 
 
 def search_models(
@@ -466,7 +459,10 @@ def search_models(
             continue
         if provider and config.provider != provider:
             continue
-        if supports_function_calling is not None and config.supports_function_calling != supports_function_calling:
+        if (
+            supports_function_calling is not None
+            and config.supports_function_calling != supports_function_calling
+        ):
             continue
         if supports_vision is not None and config.supports_vision != supports_vision:
             continue

@@ -41,17 +41,17 @@ class ModelRecommendation:
         if self.current_model:
             lines.append(f"   Current: {self.current_model}")
 
-        lines.extend([
-            f"   Monthly Savings: ${self.monthly_savings:.2f}",
-            f"   Quality Impact: {self.quality_delta:+.0f}%",
-            f"   Confidence: {confidence_pct:.0f}%",
-            f"   Reasoning: {self.reasoning}",
-        ])
+        lines.extend(
+            [
+                f"   Monthly Savings: ${self.monthly_savings:.2f}",
+                f"   Quality Impact: {self.quality_delta:+.0f}%",
+                f"   Confidence: {confidence_pct:.0f}%",
+                f"   Reasoning: {self.reasoning}",
+            ]
+        )
 
         if self.alternative_models:
-            lines.append(
-                f"   Alternatives: {', '.join(self.alternative_models)}"
-            )
+            lines.append(f"   Alternatives: {', '.join(self.alternative_models)}")
 
         return "\n".join(lines)
 
@@ -332,23 +332,13 @@ class ModelSelector:
         model_a_calls = len(model_a_data)
         model_b_calls = len(model_b_data)
 
-        model_a_cost = (
-            sum(e.cost for e in model_a_data) / model_a_calls
-            if model_a_calls > 0
-            else 0
-        )
+        model_a_cost = sum(e.cost for e in model_a_data) / model_a_calls if model_a_calls > 0 else 0
 
-        model_b_cost = (
-            sum(e.cost for e in model_b_data) / model_b_calls
-            if model_b_calls > 0
-            else 0
-        )
+        model_b_cost = sum(e.cost for e in model_b_data) / model_b_calls if model_b_calls > 0 else 0
 
         # Calculate delta
         cost_delta_pct = (
-            ((model_b_cost - model_a_cost) / model_a_cost * 100)
-            if model_a_cost > 0
-            else 0
+            ((model_b_cost - model_a_cost) / model_a_cost * 100) if model_a_cost > 0 else 0
         )
 
         # Generate recommendation
@@ -502,18 +492,12 @@ class ModelSelector:
 
         if current_model:
             current_config = get_model_config(current_model)
-            cost_ratio = (
-                config.cost_per_1k_input / current_config.cost_per_1k_input
-            )
+            cost_ratio = config.cost_per_1k_input / current_config.cost_per_1k_input
 
             if cost_ratio < 0.5:
-                reasons.append(
-                    f"{suggested_model} costs <50% of {current_model}"
-                )
+                reasons.append(f"{suggested_model} costs <50% of {current_model}")
             elif cost_ratio < 0.8:
-                reasons.append(
-                    f"{suggested_model} is cheaper than {current_model}"
-                )
+                reasons.append(f"{suggested_model} is cheaper than {current_model}")
 
         if usage_context == "simple_qa":
             reasons.append("Fast, cost-effective for simple Q&A")

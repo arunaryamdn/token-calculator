@@ -26,19 +26,22 @@ Example:
     >>> # Token usage automatically tracked!
 """
 
-from typing import Any, Dict, List, Optional, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from uuid import UUID
 
 try:
     from langchain.callbacks.base import BaseCallbackHandler
     from langchain.schema import LLMResult
 except ImportError:
-    raise ImportError(
-        "LangChain is not installed. Install with: pip install langchain"
-    )
+    raise ImportError("LangChain is not installed. Install with: pip install langchain")
 
 from ..cost_tracker import CostTracker
 from ..tokenizer import count_tokens
+
+if TYPE_CHECKING:
+    from ..workflow_tracker import WorkflowTracker
 
 
 class TokenCalculatorCallback(BaseCallbackHandler):
@@ -200,7 +203,9 @@ class TokenCalculatorCallback(BaseCallbackHandler):
             id_parts = serialized["id"]
             if isinstance(id_parts, list):
                 for part in id_parts:
-                    if isinstance(part, str) and ("gpt" in part.lower() or "claude" in part.lower()):
+                    if isinstance(part, str) and (
+                        "gpt" in part.lower() or "claude" in part.lower()
+                    ):
                         return part
 
         # Default fallback
@@ -231,7 +236,7 @@ class WorkflowCallbackHandler(BaseCallbackHandler):
 
     def __init__(
         self,
-        tracker: "WorkflowTracker",  # type: ignore
+        tracker: WorkflowTracker,
         agent_id: str,
         **labels: str,
     ):

@@ -92,7 +92,7 @@ def example_2_rag_conversation():
     print(f"  Available for output: {breakdown['available_for_output']}")
 
     print(f"\nDetailed breakdown:")
-    for key, value in breakdown['breakdown'].items():
+    for key, value in breakdown["breakdown"].items():
         print(f"  {key}: {value} tokens")
 
 
@@ -179,7 +179,7 @@ def example_4_conversation_export():
     print(f"  Fixed overhead: {exported['fixed_overhead']} tokens")
 
     print(f"\nTurn details:")
-    for i, turn in enumerate(exported['turns'], 1):
+    for i, turn in enumerate(exported["turns"], 1):
         print(f"  Turn {i}:")
         print(f"    Cost: ${turn['cost']:.6f}")
         print(f"    Total tokens: {turn['total_tokens']}")

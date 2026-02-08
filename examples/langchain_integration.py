@@ -9,9 +9,9 @@ with minimal code changes.
 # pip install langchain langchain-openai
 
 try:
-    from langchain_openai import ChatOpenAI
     from langchain.prompts import ChatPromptTemplate
     from langchain.schema import StrOutputParser
+    from langchain_openai import ChatOpenAI
 except ImportError:
     print("⚠️  LangChain not installed. Install with: pip install langchain langchain-openai")
     exit(1)
@@ -32,24 +32,14 @@ def basic_integration():
     # 1. Create a cost tracker
     tracker = CostTracker(
         storage=create_storage("sqlite", db_path="langchain_costs.db"),
-        default_labels={
-            "environment": "development",
-            "application": "qa-bot"
-        }
+        default_labels={"environment": "development", "application": "qa-bot"},
     )
 
     # 2. Create callback
-    callback = TokenCalculatorCallback(
-        tracker=tracker,
-        agent_id="qa-agent",
-        version="v1.0"
-    )
+    callback = TokenCalculatorCallback(tracker=tracker, agent_id="qa-agent", version="v1.0")
 
     # 3. Use with LangChain (just add callbacks parameter!)
-    llm = ChatOpenAI(
-        model="gpt-3.5-turbo",
-        callbacks=[callback]  # ← This is all you need!
-    )
+    llm = ChatOpenAI(model="gpt-3.5-turbo", callbacks=[callback])  # ← This is all you need!
 
     # Now use LangChain normally - tracking happens automatically
     print("\n📝 Asking a question...")
@@ -68,43 +58,28 @@ def chain_integration():
     print("LANGCHAIN CHAIN INTEGRATION")
     print("=" * 60)
 
-    tracker = CostTracker(
-        storage=create_storage("sqlite", db_path="langchain_costs.db")
-    )
+    tracker = CostTracker(storage=create_storage("sqlite", db_path="langchain_costs.db"))
 
-    callback = TokenCalculatorCallback(
-        tracker=tracker,
-        agent_id="translation-chain"
-    )
+    callback = TokenCalculatorCallback(tracker=tracker, agent_id="translation-chain")
 
     # Create a translation chain
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a translator. Translate to {target_language}."),
-        ("user", "{text}")
-    ])
-
-    llm = ChatOpenAI(
-        model="gpt-4o-mini",
-        callbacks=[callback]
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", "You are a translator. Translate to {target_language}."), ("user", "{text}")]
     )
+
+    llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[callback])
 
     chain = prompt | llm | StrOutputParser()
 
     # Run the chain
     print("\n🔄 Running translation chain...")
-    result = chain.invoke({
-        "target_language": "Spanish",
-        "text": "Hello, how are you today?"
-    })
+    result = chain.invoke({"target_language": "Spanish", "text": "Hello, how are you today?"})
 
     print(f"Translation: {result}")
 
     # Check costs by agent
     print("\n💰 Translation Chain Costs:")
-    report = tracker.get_costs(
-        start_date="today",
-        group_by=["agent_id"]
-    )
+    report = tracker.get_costs(start_date="today", group_by=["agent_id"])
     print(report)
 
 
@@ -114,22 +89,13 @@ def multi_agent_rag_system():
     print("MULTI-AGENT RAG SYSTEM")
     print("=" * 60)
 
-    tracker = CostTracker(
-        storage=create_storage("sqlite", db_path="langchain_costs.db")
-    )
+    tracker = CostTracker(storage=create_storage("sqlite", db_path="langchain_costs.db"))
 
     # Router agent
     print("\n🤖 Router Agent:")
-    router_callback = TokenCalculatorCallback(
-        tracker=tracker,
-        agent_id="router",
-        stage="routing"
-    )
+    router_callback = TokenCalculatorCallback(tracker=tracker, agent_id="router", stage="routing")
 
-    router_llm = ChatOpenAI(
-        model="gpt-4o-mini",
-        callbacks=[router_callback]
-    )
+    router_llm = ChatOpenAI(model="gpt-4o-mini", callbacks=[router_callback])
 
     route_prompt = ChatPromptTemplate.from_template(
         "Route this query to the right agent (qa/support/sales): {query}"
@@ -143,39 +109,25 @@ def multi_agent_rag_system():
 
     # QA agent (simulated)
     print("\n🤖 QA Agent:")
-    qa_callback = TokenCalculatorCallback(
-        tracker=tracker,
-        agent_id="qa-agent",
-        stage="retrieval"
-    )
+    qa_callback = TokenCalculatorCallback(tracker=tracker, agent_id="qa-agent", stage="retrieval")
 
-    qa_llm = ChatOpenAI(
-        model="gpt-4o",
-        callbacks=[qa_callback]
-    )
+    qa_llm = ChatOpenAI(model="gpt-4o", callbacks=[qa_callback])
 
-    qa_prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are a helpful QA agent. Context: {context}"),
-        ("user", "{query}")
-    ])
+    qa_prompt = ChatPromptTemplate.from_messages(
+        [("system", "You are a helpful QA agent. Context: {context}"), ("user", "{query}")]
+    )
 
     qa_chain = qa_prompt | qa_llm | StrOutputParser()
 
     # Simulate RAG retrieval
     context = "Password reset: Go to Settings > Security > Reset Password"
-    answer = qa_chain.invoke({
-        "context": context,
-        "query": query
-    })
+    answer = qa_chain.invoke({"context": context, "query": query})
 
     print(f"Answer: {answer}")
 
     # Cost breakdown by agent
     print("\n💰 Cost Breakdown by Agent:")
-    report = tracker.get_costs(
-        start_date="today",
-        group_by=["agent_id", "stage"]
-    )
+    report = tracker.get_costs(start_date="today", group_by=["agent_id", "stage"])
     print(report)
 
 
@@ -185,32 +137,30 @@ def production_monitoring():
     print("PRODUCTION MONITORING SETUP")
     print("=" * 60)
 
-    from token_calculator import AlertManager, BudgetTracker, AlertRule
+    from token_calculator import AlertManager, AlertRule, BudgetTracker
 
     # Setup tracker
     tracker = CostTracker(
         storage=create_storage("sqlite", db_path="production.db"),
-        default_labels={"environment": "production"}
+        default_labels={"environment": "production"},
     )
 
     # Setup alerts
     alerts = AlertManager()
 
-    alerts.add_rule(AlertRule(
-        name="high-cost-call",
-        condition=lambda e: e.cost > 0.50,
-        severity="warning",
-        message_template="High cost call: ${cost:.2f} for {agent_id}",
-        channels=["console"]
-    ))
+    alerts.add_rule(
+        AlertRule(
+            name="high-cost-call",
+            condition=lambda e: e.cost > 0.50,
+            severity="warning",
+            message_template="High cost call: ${cost:.2f} for {agent_id}",
+            channels=["console"],
+        )
+    )
 
     # Setup budget
     budget = BudgetTracker(storage=tracker.storage)
-    budget.set_budget(
-        amount=1000,  # $1000/month
-        period="monthly",
-        name="production-budget"
-    )
+    budget.set_budget(amount=1000, period="monthly", name="production-budget")  # $1000/month
 
     # Create callback with alert checking
     class MonitoredCallback(TokenCalculatorCallback):
@@ -223,21 +173,14 @@ def production_monitoring():
             super().on_llm_end(response, run_id=run_id, **kwargs)
 
             # Check alerts
-            if self.alerts and hasattr(self, 'last_event'):
+            if self.alerts and hasattr(self, "last_event"):
                 triggered = self.alerts.check_event(self.last_event)
                 for alert in triggered:
                     print(f"\n{alert}")
 
-    callback = MonitoredCallback(
-        tracker=tracker,
-        alerts=alerts,
-        agent_id="production-agent"
-    )
+    callback = MonitoredCallback(tracker=tracker, alerts=alerts, agent_id="production-agent")
 
-    llm = ChatOpenAI(
-        model="gpt-4",
-        callbacks=[callback]
-    )
+    llm = ChatOpenAI(model="gpt-4", callbacks=[callback])
 
     print("\n📝 Running production query...")
     result = llm.invoke("Explain quantum computing in detail.")
@@ -257,29 +200,18 @@ def optimization_workflow():
 
     from token_calculator import ModelSelector
 
-    tracker = CostTracker(
-        storage=create_storage("sqlite", db_path="langchain_costs.db")
-    )
+    tracker = CostTracker(storage=create_storage("sqlite", db_path="langchain_costs.db"))
 
     # Current setup: using GPT-4 for everything
     current_callback = TokenCalculatorCallback(
-        tracker=tracker,
-        agent_id="current-agent",
-        model_version="gpt-4"
+        tracker=tracker, agent_id="current-agent", model_version="gpt-4"
     )
 
-    llm_current = ChatOpenAI(
-        model="gpt-4",
-        callbacks=[current_callback]
-    )
+    llm_current = ChatOpenAI(model="gpt-4", callbacks=[current_callback])
 
     # Run some queries
     print("\n📝 Running queries with GPT-4...")
-    for query in [
-        "What is 2+2?",
-        "Explain machine learning",
-        "Write a haiku about AI"
-    ]:
+    for query in ["What is 2+2?", "Explain machine learning", "Write a haiku about AI"]:
         llm_current.invoke(query)
 
     # Get recommendation
@@ -287,9 +219,7 @@ def optimization_workflow():
 
     print("\n🎯 Getting model recommendation...")
     rec = selector.recommend(
-        current_model="gpt-4",
-        requirements={"max_cost_per_1k": 0.01},
-        usage_context="simple_qa"
+        current_model="gpt-4", requirements={"max_cost_per_1k": 0.01}, usage_context="simple_qa"
     )
 
     print(rec)
@@ -302,25 +232,17 @@ def optimization_workflow():
         print(f"\n🧪 Testing {rec.suggested_model}...")
 
         test_callback = TokenCalculatorCallback(
-            tracker=tracker,
-            agent_id="test-agent",
-            model_version=rec.suggested_model
+            tracker=tracker, agent_id="test-agent", model_version=rec.suggested_model
         )
 
-        llm_test = ChatOpenAI(
-            model=rec.suggested_model,
-            callbacks=[test_callback]
-        )
+        llm_test = ChatOpenAI(model=rec.suggested_model, callbacks=[test_callback])
 
         test_result = llm_test.invoke("What is 2+2?")
         print(f"Result: {test_result.content}")
 
         # Compare costs
         print("\n💰 Cost Comparison:")
-        comparison = tracker.get_costs(
-            start_date="today",
-            group_by=["model_version"]
-        )
+        comparison = tracker.get_costs(start_date="today", group_by=["model_version"])
         print(comparison)
 
 

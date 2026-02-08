@@ -8,19 +8,19 @@ Tests for:
 - Storage factory function
 """
 
-import pytest
-from datetime import datetime, timedelta
 import json
+from datetime import datetime, timedelta
+
+import pytest
 
 from token_calculator import (
-    TrackingEvent,
     InMemoryStorage,
     SQLiteStorage,
-    create_storage,
     StorageBackend,
     StorageError,
+    TrackingEvent,
+    create_storage,
 )
-
 
 # ============================================================================
 # TrackingEvent Tests
@@ -455,9 +455,7 @@ class TestStorageBackendCommon:
         for event in events:
             storage_backend.save_event(event)
 
-        result = storage_backend.aggregate(
-            metric="cost", group_by=["agent_id", "environment"]
-        )
+        result = storage_backend.aggregate(metric="cost", group_by=["agent_id", "environment"])
 
         assert ("agent-1", "prod") in result
         assert ("agent-1", "dev") in result
@@ -486,9 +484,7 @@ class TestStorageBackendCommon:
         for event in events:
             storage_backend.save_event(event)
 
-        result = storage_backend.aggregate(
-            metric="cost", filters={"agent_id": "agent-1"}
-        )
+        result = storage_backend.aggregate(metric="cost", filters={"agent_id": "agent-1"})
 
         assert result["total"] == pytest.approx(0.01)
 
@@ -511,9 +507,7 @@ class TestStorageBackendCommon:
         storage_backend.save_event(event2)
 
         # Aggregate only recent events
-        result = storage_backend.aggregate(
-            metric="cost", start_time=now - timedelta(hours=1)
-        )
+        result = storage_backend.aggregate(metric="cost", start_time=now - timedelta(hours=1))
 
         assert result["total"] == pytest.approx(0.02)
 
