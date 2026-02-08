@@ -5,7 +5,7 @@ Contains context windows, pricing, and tokenizer information.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 
 class ModelProvider(Enum):
@@ -415,7 +415,7 @@ def get_model_config(model_name: str) -> ModelConfig:
     return MODEL_DATABASE[model_name]
 
 
-def list_models(provider: Optional[ModelProvider] = None) -> list[str]:
+def list_models(provider: Optional[ModelProvider] = None) -> List[str]:
     """
     List all available models, optionally filtered by provider.
 
@@ -436,7 +436,7 @@ def search_models(
     provider: Optional[ModelProvider] = None,
     supports_function_calling: Optional[bool] = None,
     supports_vision: Optional[bool] = None,
-) -> list[str]:
+) -> List[str]:
     """
     Search for models matching specific criteria.
 
