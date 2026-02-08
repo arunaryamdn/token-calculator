@@ -276,77 +276,163 @@ class SQLiteStorage(StorageBackend):
 
         Args:
             db_path: Path to database file (created if doesn't exist)
+
+        Note:
+            For :memory: databases, maintains a persistent connection
+            to prevent the database from being destroyed when the
+            connection closes. For file-based databases, uses context
+            managers for proper resource cleanup.
         """
         self.db_path = db_path
+        # Maintain persistent connection for :memory: databases
+        self._persistent_conn = None
+        if db_path == ":memory:":
+            self._persistent_conn = sqlite3.connect(db_path)
         self._init_db()
 
     def _init_db(self) -> None:
-        """Initialize database schema."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        """Initialize database schema.
 
-        cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS events (
-                event_id TEXT PRIMARY KEY,
-                timestamp TEXT NOT NULL,
-                event_type TEXT NOT NULL,
-                model TEXT NOT NULL,
-                input_tokens INTEGER NOT NULL,
-                output_tokens INTEGER NOT NULL,
-                cost REAL NOT NULL,
-                parent_id TEXT,
-                labels TEXT,
-                metadata TEXT
-            )
+        Security:
+            Uses persistent connection for :memory: databases,
+            context manager for file-based databases.
         """
-        )
+        if self._persistent_conn:
+            # Use persistent connection for :memory: databases
+            conn = self._persistent_conn
+            cursor = conn.cursor()
 
-        # Create indexes for common queries
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_model ON events(model)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)"
-        )
+            cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS events (
+                    event_id TEXT PRIMARY KEY,
+                    timestamp TEXT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    model TEXT NOT NULL,
+                    input_tokens INTEGER NOT NULL,
+                    output_tokens INTEGER NOT NULL,
+                    cost REAL NOT NULL,
+                    parent_id TEXT,
+                    labels TEXT,
+                    metadata TEXT
+                )
+            """
+            )
 
-        conn.commit()
-        conn.close()
+            # Create indexes for common queries
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_model ON events(model)"
+            )
+            cursor.execute(
+                "CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)"
+            )
+
+            conn.commit()
+        else:
+            # Use context manager for file-based databases
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    CREATE TABLE IF NOT EXISTS events (
+                        event_id TEXT PRIMARY KEY,
+                        timestamp TEXT NOT NULL,
+                        event_type TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        input_tokens INTEGER NOT NULL,
+                        output_tokens INTEGER NOT NULL,
+                        cost REAL NOT NULL,
+                        parent_id TEXT,
+                        labels TEXT,
+                        metadata TEXT
+                    )
+                """
+                )
+
+                # Create indexes for common queries
+                cursor.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_timestamp ON events(timestamp)"
+                )
+                cursor.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_event_type ON events(event_type)"
+                )
+                cursor.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_model ON events(model)"
+                )
+                cursor.execute(
+                    "CREATE INDEX IF NOT EXISTS idx_parent_id ON events(parent_id)"
+                )
+
+                conn.commit()
 
     def save_event(self, event: TrackingEvent) -> None:
-        """Save event to SQLite."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        """Save event to SQLite.
 
-        cursor.execute(
-            """
-            INSERT INTO events
-            (event_id, timestamp, event_type, model, input_tokens,
-             output_tokens, cost, parent_id, labels, metadata)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-            (
-                event.event_id,
-                event.timestamp.isoformat(),
-                event.event_type,
-                event.model,
-                event.input_tokens,
-                event.output_tokens,
-                event.cost,
-                event.parent_id,
-                json.dumps(event.labels),
-                json.dumps(event.metadata),
-            ),
-        )
+        Security:
+            Uses persistent connection for :memory: databases,
+            context manager for file-based databases to prevent leaks.
+        """
+        if self._persistent_conn:
+            # Use persistent connection for :memory: databases
+            conn = self._persistent_conn
+            cursor = conn.cursor()
 
-        conn.commit()
-        conn.close()
+            cursor.execute(
+                """
+                INSERT INTO events
+                (event_id, timestamp, event_type, model, input_tokens,
+                 output_tokens, cost, parent_id, labels, metadata)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                (
+                    event.event_id,
+                    event.timestamp.isoformat(),
+                    event.event_type,
+                    event.model,
+                    event.input_tokens,
+                    event.output_tokens,
+                    event.cost,
+                    event.parent_id,
+                    json.dumps(event.labels),
+                    json.dumps(event.metadata),
+                ),
+            )
+
+            conn.commit()
+        else:
+            # Use context manager for file-based databases
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    """
+                    INSERT INTO events
+                    (event_id, timestamp, event_type, model, input_tokens,
+                     output_tokens, cost, parent_id, labels, metadata)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        event.event_id,
+                        event.timestamp.isoformat(),
+                        event.event_type,
+                        event.model,
+                        event.input_tokens,
+                        event.output_tokens,
+                        event.cost,
+                        event.parent_id,
+                        json.dumps(event.labels),
+                        json.dumps(event.metadata),
+                    ),
+                )
+
+                conn.commit()
 
     def query_events(
         self,
@@ -356,56 +442,135 @@ class SQLiteStorage(StorageBackend):
         limit: Optional[int] = None,
         offset: int = 0,
     ) -> List[TrackingEvent]:
-        """Query events from SQLite."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        """Query events from SQLite.
 
-        query = "SELECT * FROM events WHERE 1=1"
-        params = []
+        Args:
+            filters: Filter by label values. Keys must be alphanumeric with
+                    underscores/hyphens only (validated for security).
+            start_time: Filter events after this time
+            end_time: Filter events before this time
+            limit: Maximum number of events to return
+            offset: Number of events to skip
 
-        # Add time filters
-        if start_time:
-            query += " AND timestamp >= ?"
-            params.append(start_time.isoformat())
-        if end_time:
-            query += " AND timestamp <= ?"
-            params.append(end_time.isoformat())
+        Returns:
+            List of matching tracking events
 
-        # Add label filters (using JSON extraction)
-        if filters:
-            for key, value in filters.items():
-                query += f" AND json_extract(labels, '$.{key}') = ?"
-                params.append(value)
+        Raises:
+            ValidationError: If filter keys contain invalid characters
 
-        # Add ordering and pagination
-        query += " ORDER BY timestamp DESC"
-        if limit:
-            query += " LIMIT ? OFFSET ?"
-            params.extend([limit, offset])
+        Security:
+            - Filter keys validated to prevent SQL injection
+            - Uses parameterized queries for values
+            - Connection properly closed via context manager (or persistent for :memory:)
+        """
+        from .validation import validate_sql_identifier
 
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
+        if self._persistent_conn:
+            # Use persistent connection for :memory: databases
+            conn = self._persistent_conn
+            cursor = conn.cursor()
 
-        # Convert rows to TrackingEvent objects
-        events = []
-        for row in rows:
-            events.append(
-                TrackingEvent(
-                    event_id=row[0],
-                    timestamp=datetime.fromisoformat(row[1]),
-                    event_type=row[2],
-                    model=row[3],
-                    input_tokens=row[4],
-                    output_tokens=row[5],
-                    cost=row[6],
-                    parent_id=row[7],
-                    labels=json.loads(row[8]),
-                    metadata=json.loads(row[9]),
+            query = "SELECT * FROM events WHERE 1=1"
+            params = []
+
+            # Add time filters
+            if start_time:
+                query += " AND timestamp >= ?"
+                params.append(start_time.isoformat())
+            if end_time:
+                query += " AND timestamp <= ?"
+                params.append(end_time.isoformat())
+
+            # Add label filters (using JSON extraction)
+            # SECURITY: Validate filter keys to prevent SQL injection
+            if filters:
+                for key, value in filters.items():
+                    # Validate key is a safe SQL identifier
+                    safe_key = validate_sql_identifier(key)
+                    query += f" AND json_extract(labels, '$.{safe_key}') = ?"
+                    params.append(value)
+
+            # Add ordering and pagination
+            query += " ORDER BY timestamp DESC"
+            if limit:
+                query += " LIMIT ? OFFSET ?"
+                params.extend([limit, offset])
+
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+
+            # Convert rows to TrackingEvent objects
+            events = []
+            for row in rows:
+                events.append(
+                    TrackingEvent(
+                        event_id=row[0],
+                        timestamp=datetime.fromisoformat(row[1]),
+                        event_type=row[2],
+                        model=row[3],
+                        input_tokens=row[4],
+                        output_tokens=row[5],
+                        cost=row[6],
+                        parent_id=row[7],
+                        labels=json.loads(row[8]),
+                        metadata=json.loads(row[9]),
+                    )
                 )
-            )
 
-        return events
+            return events
+        else:
+            # Use context manager for file-based databases
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+
+                query = "SELECT * FROM events WHERE 1=1"
+                params = []
+
+                # Add time filters
+                if start_time:
+                    query += " AND timestamp >= ?"
+                    params.append(start_time.isoformat())
+                if end_time:
+                    query += " AND timestamp <= ?"
+                    params.append(end_time.isoformat())
+
+                # Add label filters (using JSON extraction)
+                # SECURITY: Validate filter keys to prevent SQL injection
+                if filters:
+                    for key, value in filters.items():
+                        # Validate key is a safe SQL identifier
+                        safe_key = validate_sql_identifier(key)
+                        query += f" AND json_extract(labels, '$.{safe_key}') = ?"
+                        params.append(value)
+
+                # Add ordering and pagination
+                query += " ORDER BY timestamp DESC"
+                if limit:
+                    query += " LIMIT ? OFFSET ?"
+                    params.extend([limit, offset])
+
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
+
+                # Convert rows to TrackingEvent objects
+                events = []
+                for row in rows:
+                    events.append(
+                        TrackingEvent(
+                            event_id=row[0],
+                            timestamp=datetime.fromisoformat(row[1]),
+                            event_type=row[2],
+                            model=row[3],
+                            input_tokens=row[4],
+                            output_tokens=row[5],
+                            cost=row[6],
+                            parent_id=row[7],
+                            labels=json.loads(row[8]),
+                            metadata=json.loads(row[9]),
+                        )
+                    )
+
+                return events
 
     def aggregate(
         self,
@@ -415,9 +580,29 @@ class SQLiteStorage(StorageBackend):
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
     ) -> Dict[str, Any]:
-        """Aggregate metrics using SQL."""
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
+        """Aggregate metrics using SQL.
+
+        Args:
+            metric: Metric to aggregate ("cost", "input_tokens", "output_tokens", "count")
+            group_by: List of label dimensions to group by (validated for security)
+            filters: Filter by label values (keys validated for security)
+            start_time: Filter events after this time
+            end_time: Filter events before this time
+
+        Returns:
+            Dictionary with aggregated results
+
+        Raises:
+            ValueError: If metric is unknown or dimensions are invalid
+            ValidationError: If filter keys or group_by dimensions contain invalid characters
+
+        Security:
+            - Filter keys validated to prevent SQL injection
+            - Group by dimensions validated to prevent SQL injection
+            - Uses parameterized queries for values
+            - Connection properly closed via context manager (or persistent for :memory:)
+        """
+        from .validation import validate_sql_identifier
 
         # Map metric to SQL aggregate
         metric_map = {
@@ -432,9 +617,45 @@ class SQLiteStorage(StorageBackend):
 
         agg_expr = metric_map[metric]
 
-        if not group_by:
-            # Simple aggregation
-            query = f"SELECT {agg_expr} FROM events WHERE 1=1"
+        if self._persistent_conn:
+            # Use persistent connection for :memory: databases
+            conn = self._persistent_conn
+            cursor = conn.cursor()
+
+            if not group_by:
+                # Simple aggregation
+                query = f"SELECT {agg_expr} FROM events WHERE 1=1"
+                params = []
+
+                if start_time:
+                    query += " AND timestamp >= ?"
+                    params.append(start_time.isoformat())
+                if end_time:
+                    query += " AND timestamp <= ?"
+                    params.append(end_time.isoformat())
+
+                # SECURITY: Validate filter keys
+                if filters:
+                    for key, value in filters.items():
+                        safe_key = validate_sql_identifier(key)
+                        query += f" AND json_extract(labels, '$.{safe_key}') = ?"
+                        params.append(value)
+
+                cursor.execute(query, params)
+                result = cursor.fetchone()[0]
+                return {"total": result if result is not None else 0}
+
+            # Group by dimensions
+            # SECURITY: Validate all group_by dimensions
+            safe_dims = [validate_sql_identifier(dim) for dim in group_by]
+            group_exprs = [f"json_extract(labels, '$.{dim}')" for dim in safe_dims]
+            group_clause = ", ".join(group_exprs)
+
+            query = f"""
+                SELECT {group_clause}, {agg_expr}
+                FROM events
+                WHERE 1=1
+            """
             params = []
 
             if start_time:
@@ -443,69 +664,136 @@ class SQLiteStorage(StorageBackend):
             if end_time:
                 query += " AND timestamp <= ?"
                 params.append(end_time.isoformat())
+
+            # SECURITY: Validate filter keys
             if filters:
                 for key, value in filters.items():
-                    query += f" AND json_extract(labels, '$.{key}') = ?"
+                    safe_key = validate_sql_identifier(key)
+                    query += f" AND json_extract(labels, '$.{safe_key}') = ?"
                     params.append(value)
 
+            query += f" GROUP BY {group_clause}"
+
             cursor.execute(query, params)
-            result = cursor.fetchone()[0]
-            conn.close()
-            return {"total": result if result is not None else 0}
+            rows = cursor.fetchall()
 
-        # Group by dimensions
-        group_exprs = [f"json_extract(labels, '$.{dim}')" for dim in group_by]
-        group_clause = ", ".join(group_exprs)
+            # Convert to dictionary
+            results = {}
+            for row in rows:
+                key = tuple(row[:-1])  # All but last column are group dimensions
+                value = row[-1]  # Last column is the aggregated value
+                results[key] = value if value is not None else 0
 
-        query = f"""
-            SELECT {group_clause}, {agg_expr}
-            FROM events
-            WHERE 1=1
-        """
-        params = []
+            return results
+        else:
+            # Use context manager for file-based databases
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
 
-        if start_time:
-            query += " AND timestamp >= ?"
-            params.append(start_time.isoformat())
-        if end_time:
-            query += " AND timestamp <= ?"
-            params.append(end_time.isoformat())
-        if filters:
-            for key, value in filters.items():
-                query += f" AND json_extract(labels, '$.{key}') = ?"
-                params.append(value)
+                if not group_by:
+                    # Simple aggregation
+                    query = f"SELECT {agg_expr} FROM events WHERE 1=1"
+                    params = []
 
-        query += f" GROUP BY {group_clause}"
+                    if start_time:
+                        query += " AND timestamp >= ?"
+                        params.append(start_time.isoformat())
+                    if end_time:
+                        query += " AND timestamp <= ?"
+                        params.append(end_time.isoformat())
 
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
+                    # SECURITY: Validate filter keys
+                    if filters:
+                        for key, value in filters.items():
+                            safe_key = validate_sql_identifier(key)
+                            query += f" AND json_extract(labels, '$.{safe_key}') = ?"
+                            params.append(value)
 
-        # Convert to dictionary
-        results = {}
-        for row in rows:
-            key = tuple(row[:-1])  # All but last column are group dimensions
-            value = row[-1]  # Last column is the aggregated value
-            results[key] = value if value is not None else 0
+                    cursor.execute(query, params)
+                    result = cursor.fetchone()[0]
+                    return {"total": result if result is not None else 0}
 
-        return results
+                # Group by dimensions
+                # SECURITY: Validate all group_by dimensions
+                safe_dims = [validate_sql_identifier(dim) for dim in group_by]
+                group_exprs = [f"json_extract(labels, '$.{dim}')" for dim in safe_dims]
+                group_clause = ", ".join(group_exprs)
+
+                query = f"""
+                    SELECT {group_clause}, {agg_expr}
+                    FROM events
+                    WHERE 1=1
+                """
+                params = []
+
+                if start_time:
+                    query += " AND timestamp >= ?"
+                    params.append(start_time.isoformat())
+                if end_time:
+                    query += " AND timestamp <= ?"
+                    params.append(end_time.isoformat())
+
+                # SECURITY: Validate filter keys
+                if filters:
+                    for key, value in filters.items():
+                        safe_key = validate_sql_identifier(key)
+                        query += f" AND json_extract(labels, '$.{safe_key}') = ?"
+                        params.append(value)
+
+                query += f" GROUP BY {group_clause}"
+
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
+
+                # Convert to dictionary
+                results = {}
+                for row in rows:
+                    key = tuple(row[:-1])  # All but last column are group dimensions
+                    value = row[-1]  # Last column is the aggregated value
+                    results[key] = value if value is not None else 0
+
+                return results
 
     def delete_old_events(self, days: int) -> int:
-        """Delete old events from SQLite."""
+        """Delete old events from SQLite.
+
+        Args:
+            days: Delete events older than this many days
+
+        Returns:
+            Number of events deleted
+
+        Security:
+            Uses persistent connection for :memory:, context manager for file-based databases.
+        """
         from datetime import timedelta
 
         cutoff = datetime.now() - timedelta(days=days)
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
 
-        cursor.execute(
-            "DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),)
-        )
+        if self._persistent_conn:
+            # Use persistent connection for :memory: databases
+            conn = self._persistent_conn
+            cursor = conn.cursor()
 
-        deleted = cursor.rowcount
-        conn.commit()
-        conn.close()
-        return deleted
+            cursor.execute(
+                "DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),)
+            )
+
+            deleted = cursor.rowcount
+            conn.commit()
+            return deleted
+        else:
+            # Use context manager for file-based databases
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    "DELETE FROM events WHERE timestamp < ?", (cutoff.isoformat(),)
+                )
+
+                deleted = cursor.rowcount
+                conn.commit()
+                return deleted
 
 
 def create_storage(backend: str = "memory", **kwargs) -> StorageBackend:

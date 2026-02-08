@@ -5,7 +5,7 @@ A comprehensive Python package for understanding, analyzing, and optimizing
 LLM token usage across different models and providers.
 """
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __author__ = "Know Your Tokens Contributors"
 
 # Core models and configurations
@@ -116,6 +116,30 @@ from .model_selector import (
     ABTestResults,
 )
 
+# Validation and security
+from .validation import (
+    TokenCalculatorError,
+    ValidationError,
+    SecurityError,
+    StorageError,
+    validate_sql_identifier,
+    validate_webhook_url,
+    validate_filter_keys,
+    validate_group_by,
+    validate_message_structure,
+    validate_text_size,
+    validate_model_name,
+    validate_token_counts,
+)
+
+# Logging configuration
+from .logging_config import (
+    get_logger,
+    configure_logging,
+    disable_logging,
+    enable_logging,
+)
+
 # Convenience exports
 __all__ = [
     # Version
@@ -189,6 +213,24 @@ __all__ = [
     "ModelRecommendation",
     "ABTestConfig",
     "ABTestResults",
+    # Validation and Security
+    "TokenCalculatorError",
+    "ValidationError",
+    "SecurityError",
+    "StorageError",
+    "validate_sql_identifier",
+    "validate_webhook_url",
+    "validate_filter_keys",
+    "validate_group_by",
+    "validate_message_structure",
+    "validate_text_size",
+    "validate_model_name",
+    "validate_token_counts",
+    # Logging
+    "get_logger",
+    "configure_logging",
+    "disable_logging",
+    "enable_logging",
     # Utilities
     "analyze_prompt",
 ]

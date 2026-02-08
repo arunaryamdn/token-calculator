@@ -341,7 +341,16 @@ class ConversationMonitor:
         - Repeated assistant messages indicate confusion
         - Short messages have higher rot probability
         """
-        if len(self.messages) <= 4:  # Too few messages to have rot
+        from .constants import (
+            MIN_MESSAGES_FOR_ROT,
+            OLD_MESSAGE_THRESHOLD,
+            AGE_FACTOR_DIVISOR,
+            AGE_MULTIPLIER,
+            SHORT_MESSAGE_TOKENS,
+            REPETITION_WINDOW,
+        )
+
+        if len(self.messages) <= MIN_MESSAGES_FOR_ROT:
             return 0.0
 
         rot_score = 0.0
@@ -355,13 +364,13 @@ class ConversationMonitor:
         for i, msg in enumerate(self.messages):
             msg_age = len(self.messages) - i
 
-            # Old messages (>15 messages ago) likely less relevant
-            if msg_age > 15:
-                age_factor = min(1.0, (msg_age - 15) / 10)
-                rot_score += msg.tokens * age_factor * 0.5
+            # Old messages likely less relevant
+            if msg_age > OLD_MESSAGE_THRESHOLD:
+                age_factor = min(1.0, (msg_age - OLD_MESSAGE_THRESHOLD) / AGE_FACTOR_DIVISOR)
+                rot_score += msg.tokens * age_factor * AGE_MULTIPLIER
 
             # Very short assistant messages might be low value
-            if msg.role == "assistant" and msg.tokens < 20:
+            if msg.role == "assistant" and msg.tokens < SHORT_MESSAGE_TOKENS:
                 rot_score += msg.tokens * 0.3
 
         # Check for repetition (assistant repeating similar responses)
@@ -373,7 +382,7 @@ class ConversationMonitor:
             if all(abs(len(m) - avg_len) < avg_len * 0.2 for m in recent_msgs):
                 # Repetitive pattern detected
                 rot_score += sum(
-                    m.tokens for m in self.messages[-6:] if m.role == "assistant"
+                    m.tokens for m in self.messages[-REPETITION_WINDOW:] if m.role == "assistant"
                 ) * 0.4
 
         rot_percentage = (rot_score / total_tokens) * 100

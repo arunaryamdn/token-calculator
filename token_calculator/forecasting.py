@@ -353,13 +353,21 @@ class BudgetTracker:
     """
 
     def __init__(self, storage: StorageBackend):
-        """Initialize budget tracker.
+        """Initialize budget tracker (thread-safe).
 
         Args:
             storage: Storage backend
+
+        Thread Safety:
+            Uses threading.Lock to protect budget dictionary from race conditions.
         """
+        from threading import Lock
+        from .logging_config import get_logger
+
         self.storage = storage
         self.budgets: Dict[str, Dict] = {}
+        self._lock = Lock()  # Thread safety
+        self.logger = get_logger(__name__)
 
     def set_budget(
         self,
@@ -407,13 +415,20 @@ class BudgetTracker:
         else:
             raise ValueError(f"Unknown period: {period}")
 
-        self.budgets[name] = {
-            "amount": amount,
-            "period": period,
-            "filters": filters or {},
-            "start_date": start_date,
-            "end_date": end_date,
-        }
+        # Thread-safe budget update
+        with self._lock:
+            self.budgets[name] = {
+                "amount": amount,
+                "period": period,
+                "filters": filters or {},
+                "start_date": start_date,
+                "end_date": end_date,
+            }
+
+        self.logger.info(
+            "Budget set",
+            extra={"budget_name": name, "amount": amount, "period": period}
+        )
 
     def get_status(self, name: str = "default") -> BudgetStatus:
         """Get budget status.
@@ -429,11 +444,13 @@ class BudgetTracker:
             >>> if not status.on_track:
             ...     print("⚠️  Budget overage projected!")
         """
-        if name not in self.budgets:
-            raise ValueError(f"Budget not found: {name}")
+        # Thread-safe budget access - copy under lock to minimize lock time
+        with self._lock:
+            if name not in self.budgets:
+                raise ValueError(f"Budget not found: {name}")
+            budget = self.budgets[name].copy()
 
-        budget = self.budgets[name]
-
+        # Do expensive operations outside lock
         # Get spending
         spent_data = self.storage.aggregate(
             metric="cost",

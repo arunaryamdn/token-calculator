@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(comm:*)",
+      "Bash(wc:*)",
+      "Bash(find:*)",
+      "Bash(for file in alerts context_analyzer conversation_manager cost_tracker forecasting health_monitor model_selector storage workflow_tracker)",
+      "Bash(done)",
+      "Bash(python:*)",
+      "Bash(pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(findstr:*)",
+      "Bash(ls:*)"
+    ]
+  }
+}

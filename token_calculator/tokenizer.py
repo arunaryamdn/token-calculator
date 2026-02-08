@@ -205,12 +205,37 @@ def count_tokens(text: str, model_name: str) -> int:
     Convenience function to count tokens in text.
 
     Args:
-        text: Input text
+        text: Input text (max 10MB)
         model_name: Name of the model
 
     Returns:
         Number of tokens
+
+    Raises:
+        TypeError: If text or model_name are not strings
+        ValidationError: If text exceeds maximum size (10MB)
+        ValueError: If model_name is not found in MODEL_DATABASE
+
+    Security:
+        - Validates text size to prevent DoS attacks
+        - Validates model name exists before processing
     """
+    from .validation import validate_text_size, validate_model_name
+    from .constants import MAX_TEXT_LENGTH
+    from .models import get_model_config
+
+    # Type validation
+    if not isinstance(text, str):
+        raise TypeError(f"text must be str, got {type(text).__name__}")
+    if not isinstance(model_name, str):
+        raise TypeError(f"model_name must be str, got {type(model_name).__name__}")
+
+    # Size validation (DoS prevention)
+    validate_text_size(text, max_length=MAX_TEXT_LENGTH)
+
+    # Model validation (will raise ValueError if not found)
+    get_model_config(model_name)
+
     counter = TokenCounter(model_name)
     return counter.count_tokens(text)
 
@@ -224,12 +249,36 @@ def count_messages(
     Convenience function to count tokens in messages.
 
     Args:
-        messages: List of message dictionaries
+        messages: List of message dictionaries (each must have 'role' and 'content')
         model_name: Name of the model
         include_function_tokens: Whether to include function tokens
 
     Returns:
         Dictionary with token breakdown
+
+    Raises:
+        TypeError: If messages is not a list or model_name is not a string
+        ValidationError: If message structure is invalid
+        ValueError: If model_name is not found in MODEL_DATABASE
+
+    Security:
+        - Validates message structure to prevent errors
+        - Validates model name exists before processing
     """
+    from .validation import validate_message_structure, validate_model_name
+    from .models import get_model_config
+
+    # Type validation
+    if not isinstance(messages, list):
+        raise TypeError(f"messages must be list, got {type(messages).__name__}")
+    if not isinstance(model_name, str):
+        raise TypeError(f"model_name must be str, got {type(model_name).__name__}")
+
+    # Structure validation
+    validate_message_structure(messages)
+
+    # Model validation (will raise ValueError if not found)
+    get_model_config(model_name)
+
     counter = TokenCounter(model_name)
     return counter.count_messages(messages, include_function_tokens)

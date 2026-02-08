@@ -92,12 +92,40 @@ class AlertManager:
         """Initialize alert manager.
 
         Args:
-            webhook_url: Optional webhook URL for notifications
+            webhook_url: Optional webhook URL for notifications (HTTPS only by default)
+
+        Raises:
+            SecurityError: If webhook URL is invalid or points to internal networks
+
+        Security:
+            Webhook URLs are validated to prevent SSRF attacks.
+            Only HTTPS URLs to external hosts are allowed by default.
         """
+        from .validation import validate_webhook_url
+        from .logging_config import get_logger
+
         self.rules: List[AlertRule] = []
-        self.webhook_url = webhook_url
         self.alert_history: List[Alert] = []
         self.last_alert_time: Dict[str, datetime] = {}
+        self.logger = get_logger(__name__)
+
+        # Validate webhook URL (SSRF prevention)
+        if webhook_url:
+            try:
+                self.webhook_url: Optional[str] = validate_webhook_url(webhook_url)
+                self.logger.info(
+                    "Webhook URL validated",
+                    extra={"url": webhook_url}
+                )
+            except Exception as e:
+                self.logger.error(
+                    "Invalid webhook URL",
+                    extra={"url": webhook_url, "error": str(e)},
+                    exc_info=True
+                )
+                raise
+        else:
+            self.webhook_url: Optional[str] = None
 
     def add_rule(self, rule: AlertRule):
         """Add an alert rule.
@@ -168,7 +196,11 @@ class AlertManager:
 
             except Exception as e:
                 # Don't let alert failures break the system
-                print(f"Error checking rule {rule.name}: {e}")
+                self.logger.error(
+                    "Error checking alert rule",
+                    extra={"rule": rule.name, "error": str(e)},
+                    exc_info=True
+                )
 
         return triggered
 
@@ -317,9 +349,24 @@ class AlertManager:
                 pass
 
     def _send_webhook(self, alert: Alert):
-        """Send webhook notification."""
+        """Send webhook notification.
+
+        Security:
+            - URL validated on initialization to prevent SSRF
+            - Re-validated before sending (defense in depth)
+            - Request has 10-second timeout to prevent hanging
+            - Uses context manager for proper resource cleanup
+        """
+        if not self.webhook_url:
+            return
+
         try:
             import urllib.request
+            from .validation import validate_webhook_url
+            from .constants import MAX_WEBHOOK_TIMEOUT
+
+            # Re-validate URL (defense in depth)
+            safe_url = validate_webhook_url(self.webhook_url)
 
             payload = {
                 "text": str(alert),
@@ -329,12 +376,28 @@ class AlertManager:
             }
 
             req = urllib.request.Request(
-                self.webhook_url,
+                safe_url,
                 data=json.dumps(payload).encode("utf-8"),
                 headers={"Content-Type": "application/json"},
             )
 
-            urllib.request.urlopen(req)
+            # Add timeout to prevent hanging
+            with urllib.request.urlopen(req, timeout=MAX_WEBHOOK_TIMEOUT) as response:
+                self.logger.info(
+                    "Webhook sent successfully",
+                    extra={
+                        "rule": alert.rule_name,
+                        "status": response.status
+                    }
+                )
 
         except Exception as e:
-            print(f"Failed to send webhook: {e}")
+            self.logger.error(
+                "Failed to send webhook",
+                extra={
+                    "rule": alert.rule_name,
+                    "error": str(e),
+                    "url": self.webhook_url
+                },
+                exc_info=True
+            )
