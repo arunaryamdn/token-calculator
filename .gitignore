@@ -210,4 +210,8 @@ __marimo__/
 *.db
 test_phase*.py
 CLEANUP_SUMMARY.md
-PRD
+CLEANUP_PLAN.md
+PRD.md
+*_FIX_SUMMARY.md
+*_SUCCESS.md
+NEXT_STEPS.md
