@@ -1,30 +1,30 @@
-# PyPI Release Checklist for v2.1.0
+# PyPI Release Checklist for v2.2.0
 
 ## Pre-Release Verification
 
 ### 1. Version Check
-- [x] Version bumped in `token_calculator/__init__.py` (2.0.0 → 2.1.0)
-- [ ] Version matches in `setup.py` or `pyproject.toml`
+- [x] Version bumped in `token_calculator/__init__.py` (2.1.0 → 2.2.0)
+- [x] Version matches in `pyproject.toml`
 
 ### 2. Code Quality
 - [x] All imports working correctly
 - [x] No syntax errors
-- [x] Message class added and exported
-- [x] ConversationMonitor initialization fixed
-- [ ] Run tests (if available): `pytest`
-- [ ] Check for linting issues: `flake8 token_calculator/`
+- [x] Security vulnerabilities fixed (SQL injection, SSRF, connection leaks)
+- [x] Run tests: `pytest` (101 tests passing, 49% coverage)
+- [x] Check for linting issues: `black`, `isort`, `flake8`, `mypy`
+- [x] Security scan: `bandit` (no issues)
 
 ### 3. Documentation
-- [x] README.md updated with new features
-- [x] RELEASE_NOTES_v2.1.0.md created
-- [x] Examples provided
-- [x] Docstrings complete
+- [x] README.md verified
+- [x] CHANGELOG.md updated with v2.2.0
+- [x] SECURITY.md created
+- [x] Docstrings complete with security notes
 
 ### 4. Git
-- [x] All changes committed
+- [x] All changes committed (5 commits)
 - [x] Changes pushed to GitHub
-- [ ] PR created and approved
-- [ ] PR merged to main branch
+- [x] All CI checks passing
+- [x] Repository cleaned up
 
 ---
 
@@ -38,142 +38,104 @@ git checkout main
 git pull origin main
 ```
 
-### Step 2: Tag the Release
-
-```bash
-# Create annotated tag
-git tag -a v2.1.0 -m "Release v2.1.0 - Production-ready for AI Product Managers"
-
-# Push tag
-git push origin v2.1.0
-```
-
-### Step 3: Create GitHub Release
+### Step 2: Create GitHub Release
 
 1. Go to: https://github.com/arunaryamdn/token-calculator/releases/new
-2. Choose tag: v2.1.0
-3. Release title: "v2.1.0 - Production-Ready for AI Product Managers"
-4. Copy release notes from `RELEASE_NOTES_v2.1.0.md`
-5. Mark as "Latest release"
-6. Publish release
+2. Click "Choose a tag" dropdown
+3. Type: v2.2.0
+4. Click "Create new tag: v2.2.0 on publish"
+5. Release title: "v2.2.0 - Security Fixes and Comprehensive Testing"
+6. Copy release notes from CHANGELOG.md (v2.2.0 section)
+7. Mark as "Latest release"
+8. Publish release
 
-### Step 4: Build Distribution
+**Note**: The publish.yml workflow will automatically trigger and build/upload to PyPI
 
-```bash
-# Clean previous builds
-rm -rf dist/ build/ *.egg-info
+### Step 3: Wait for GitHub Actions
 
-# Install/upgrade build tools
-pip install --upgrade build twine
+After publishing the release, the GitHub Actions workflow will automatically:
+1. Build the package
+2. Run all tests
+3. Upload to PyPI
 
-# Build distributions
-python -m build
+Monitor the workflow at:
+https://github.com/arunaryamdn/token-calculator/actions
 
-# Verify builds
-ls -lh dist/
-# Should see:
-# token_calculator-2.1.0-py3-none-any.whl
-# token_calculator-2.1.0.tar.gz
-```
-
-### Step 5: Test on TestPyPI (Optional but Recommended)
-
-```bash
-# Upload to TestPyPI
-python -m twine upload --repository testpypi dist/*
-
-# Test installation from TestPyPI
-pip install --index-url https://test.pypi.org/simple/ token-calculator==2.1.0
-
-# Verify imports
-python -c "from token_calculator import CostTracker, WorkflowTracker, ConversationMonitor; print('✅ All imports work!')"
-```
-
-### Step 6: Upload to PyPI
-
-```bash
-# Upload to PyPI
-python -m twine upload dist/*
-
-# Enter credentials when prompted
-# Username: __token__
-# Password: your-pypi-token
-```
-
-### Step 7: Verify PyPI Release
+### Step 4: Verify PyPI Release
 
 ```bash
 # Wait a few minutes, then install from PyPI
 pip uninstall token-calculator -y
-pip install token-calculator==2.1.0
+pip install token-calculator==2.2.0
 
 # Verify version
 python -c "import token_calculator; print(token_calculator.__version__)"
-# Should print: 2.1.0
+# Should print: 2.2.0
 
-# Test imports
+# Test security features
 python -c "
 from token_calculator import (
     CostTracker,
-    WorkflowTracker,
-    ConversationMonitor,
-    CostForecaster,
-    BudgetTracker,
-    AlertManager,
-    ModelSelector,
-    create_storage,
-    Message
+    ValidationError,
+    SecurityError,
+    validate_sql_identifier,
+    validate_webhook_url,
+    create_storage
 )
-print('✅ All new features available!')
-print('✅ Version 2.1.0 successfully published!')
+print('✅ All security features available!')
+print('✅ Version 2.2.0 successfully published!')
 "
 ```
 
-### Step 8: Update GitHub
+### Step 5: Update GitHub
 
-1. Update main branch README badge (if version badge exists)
-2. Close related issues
+1. README badge will auto-update to show v2.2.0
+2. Close related security issues
 3. Announce in Discussions
 
-### Step 9: Announce Release
+### Step 6: Announce Release
 
 **GitHub Discussions**:
 ```
-🎉 Token Calculator v2.1.0 Released!
+🔒 Token Calculator v2.2.0 Released - Security & Testing Update
 
-We're excited to announce v2.1.0 - a major release transforming Token Calculator into a production-ready LLM observability platform for AI Product Managers!
+We're excited to announce v2.2.0 - a security-focused release with comprehensive testing improvements!
 
-🚀 What's New:
-- Multi-backend storage (SQLite, PostgreSQL)
-- Cost tracking with custom labels
-- Multi-agent workflow tracking
-- Context health monitoring
-- Cost forecasting & budgeting
-- Real-time alerting
-- Model recommendation engine
-- LangChain integration
+🔒 Security Fixes:
+- SQL injection prevention (filter keys, group_by validation)
+- SSRF prevention (webhook URL validation)
+- Connection leak fixes (proper resource cleanup)
+- Input validation (DoS prevention)
+- Thread safety (race condition fixes)
 
-📦 Install: pip install token-calculator==2.1.0
-📖 Docs: See PRD.md, ARCHITECTURE.md
-💡 Examples: examples/ai_pm_daily_workflow.py
+✅ Quality Improvements:
+- 101+ tests with 49% code coverage (up from ~15%)
+- Comprehensive security test suite
+- GitHub Actions CI/CD pipeline
+- Type hints and strict mypy checking
+- Structured logging throughout
 
-Full release notes: RELEASE_NOTES_v2.1.0.md
+📦 Install: pip install token-calculator==2.2.0
+📖 Security: See SECURITY.md
+📝 Full changes: CHANGELOG.md
+
+100% backward compatible - upgrade recommended for all users!
 ```
 
 **Twitter/Social Media** (if applicable):
 ```
-🎉 Just released Token Calculator v2.1.0!
+🔒 Token Calculator v2.2.0 released!
 
-Now with production-ready features for AI Product Managers:
-✅ Multi-agent workflow tracking
-✅ Cost forecasting & budgeting
-✅ Context health monitoring
-✅ Real-time alerting
-✅ Model recommendations
+Major security & testing update:
+✅ SQL injection prevention
+✅ SSRF prevention
+✅ 101+ tests (49% coverage)
+✅ CI/CD pipeline
+✅ 100% backward compatible
 
-pip install token-calculator==2.1.0
+Upgrade now: pip install token-calculator==2.2.0
 
-#AI #LLM #ProductManagement
+#Security #Testing #Python
 ```
 
 ---
@@ -182,7 +144,7 @@ pip install token-calculator==2.1.0
 
 ### Check PyPI
 - [ ] Package visible at https://pypi.org/project/token-calculator/
-- [ ] Version 2.1.0 shows as latest
+- [ ] Version 2.2.0 shows as latest
 - [ ] README renders correctly
 - [ ] Download stats updating
 
@@ -190,10 +152,10 @@ pip install token-calculator==2.1.0
 ```bash
 # In a fresh virtual environment
 python -m venv test_env
-source test_env/bin/activate
-pip install token-calculator==2.1.0
+source test_env/bin/activate  # Windows: test_env\Scripts\activate
+pip install token-calculator==2.2.0
 
-# Run examples
+# Test basic functionality
 python -c "
 from token_calculator import CostTracker, create_storage
 
@@ -201,6 +163,18 @@ tracker = CostTracker(storage=create_storage('memory'))
 tracker.track_call(model='gpt-4', input_tokens=100, output_tokens=50, agent_id='test')
 report = tracker.get_costs(start_date='today')
 print(f'✅ Basic functionality works! Cost: ${report.total_cost:.4f}')
+"
+
+# Test security features
+python -c "
+from token_calculator import validate_sql_identifier, ValidationError
+
+try:
+    validate_sql_identifier('valid_name')
+    print('✅ Valid identifier accepted')
+    validate_sql_identifier('DROP TABLE')
+except ValidationError:
+    print('✅ SQL injection prevented')
 "
 ```
 
@@ -265,10 +239,11 @@ Password: pypi-AgE... (your token)
 ## Success Criteria
 
 Release is successful when:
-- ✅ PyPI shows v2.1.0 as latest
-- ✅ `pip install token-calculator==2.1.0` works
+- ✅ GitHub Actions workflow completes successfully
+- ✅ PyPI shows v2.2.0 as latest
+- ✅ `pip install token-calculator==2.2.0` works
 - ✅ All imports work in fresh environment
-- ✅ Examples run without errors
+- ✅ Security features work as expected
 - ✅ No critical issues reported in first 24 hours
 - ✅ Download count starts increasing
 - ✅ GitHub release created with notes
@@ -287,5 +262,5 @@ If you encounter issues during release:
 
 **Ready to release! 🚀**
 
-Last Updated: 2026-01-24
-Version: 2.1.0
+Last Updated: 2026-02-08
+Version: 2.2.0
