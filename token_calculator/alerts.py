@@ -375,7 +375,8 @@ class AlertManager:
             )
 
             # Add timeout to prevent hanging
-            with urllib.request.urlopen(req, timeout=MAX_WEBHOOK_TIMEOUT) as response:
+            with urllib.request.urlopen(req, timeout=MAX_WEBHOOK_TIMEOUT) as response:  # nosec B310
+                # B310: URL is validated for SSRF by validate_webhook_url() before this call
                 self.logger.info(
                     "Webhook sent successfully",
                     extra={"rule": alert.rule_name, "status": response.status},

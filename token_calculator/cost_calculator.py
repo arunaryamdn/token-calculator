@@ -207,7 +207,7 @@ class CostCalculator:
                         "supports_vision": model_config.supports_vision,
                     }
                 )
-            except Exception:
+            except Exception:  # nosec B112: Intentionally skip models that fail comparison
                 # Skip models that fail
                 continue
 
@@ -262,7 +262,7 @@ class CostCalculator:
             "request_costs": request_costs,
         }
 
-    def estimate_cost_savings(
+    def estimate_cost_savings(  # nosec B107: "input" is token type, not a password
         self,
         current_tokens: int,
         optimized_tokens: int,
@@ -285,7 +285,7 @@ class CostCalculator:
         reduction_percentage = (tokens_saved / current_tokens * 100) if current_tokens > 0 else 0
 
         # Calculate costs
-        if token_type == "input":
+        if token_type == "input":  # nosec B105: "input" is token type, not a password
             cost_per_1k = self.model_config.cost_per_1k_input
         else:
             cost_per_1k = self.model_config.cost_per_1k_output

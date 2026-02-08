@@ -603,8 +603,8 @@ class SQLiteStorage(StorageBackend):
             cursor = conn.cursor()
 
             if not group_by:
-                # Simple aggregation
-                query = f"SELECT {agg_expr} FROM events WHERE 1=1"
+                # Simple aggregation (agg_expr validated via metric parameter)
+                query = f"SELECT {agg_expr} FROM events WHERE 1=1"  # nosec B608
                 params = []
 
                 if start_time:
@@ -631,11 +631,12 @@ class SQLiteStorage(StorageBackend):
             group_exprs = [f"json_extract(labels, '$.{dim}')" for dim in safe_dims]
             group_clause = ", ".join(group_exprs)
 
+            # group_clause and agg_expr validated above via validate_sql_identifier()
             query = f"""
                 SELECT {group_clause}, {agg_expr}
                 FROM events
                 WHERE 1=1
-            """
+            """  # nosec B608
             params = []
 
             if start_time:
@@ -671,8 +672,8 @@ class SQLiteStorage(StorageBackend):
                 cursor = conn.cursor()
 
                 if not group_by:
-                    # Simple aggregation
-                    query = f"SELECT {agg_expr} FROM events WHERE 1=1"
+                    # Simple aggregation (agg_expr validated via metric parameter)
+                    query = f"SELECT {agg_expr} FROM events WHERE 1=1"  # nosec B608
                     params = []
 
                     if start_time:
@@ -699,11 +700,12 @@ class SQLiteStorage(StorageBackend):
                 group_exprs = [f"json_extract(labels, '$.{dim}')" for dim in safe_dims]
                 group_clause = ", ".join(group_exprs)
 
+                # group_clause and agg_expr validated above via validate_sql_identifier()
                 query = f"""
                     SELECT {group_clause}, {agg_expr}
                     FROM events
                     WHERE 1=1
-                """
+                """  # nosec B608
                 params = []
 
                 if start_time:

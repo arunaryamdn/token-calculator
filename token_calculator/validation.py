@@ -176,8 +176,8 @@ def _is_internal_ip(hostname: str) -> bool:
     - Link-local: 169.254.0.0/16 (includes cloud metadata services)
     - Localhost
     """
-    # Check for localhost strings
-    if hostname.lower() in ["localhost", "127.0.0.1", "::1", "0.0.0.0"]:
+    # Check for localhost strings (blocking these addresses, not binding to them)
+    if hostname.lower() in ["localhost", "127.0.0.1", "::1", "0.0.0.0"]:  # nosec B104
         return True
 
     # Check if hostname contains localhost
